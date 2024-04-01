@@ -70,13 +70,19 @@ void shortestJobFirstScheduling(const vector<Process>& originalProcesses) {
             // 先按运行时间排序，再选出运行时间最短的进程执行
             sortbyRunningTime(readyProcesses);
             Process curProcess = readyProcesses.front();
-            cout << "[SJF] Time: " << curTime << "\tProcess " << curProcess.name << " is running. " << endl;
+            cout << "[SJF] Time: " << curTime << "\tProcess " << curProcess.name << " begins. " << endl;
+            
             curTime += curProcess.running_time;
-            curProcess.utilization = 1;
+
+            curProcess.turnaround_time = curTime - curProcess.arrive_time;                          // 到达到完成
+            curProcess.response_time = curTime - curProcess.running_time - curProcess.arrive_time;  // 到达到响应
+            curProcess.waiting_time = curTime - curProcess.running_time - curProcess.arrive_time;   // 等待时间的和
+            curProcess.utilization = (curProcess.turnaround_time - curProcess.waiting_time)/curProcess.turnaround_time;
+            
             finished.push_back(curProcess);
             readyProcesses.pop();
         }
     }
-    showProcesses(processes);
-    // showProcesses(finished);
+    showProcesses(finished);
 }
+

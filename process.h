@@ -8,9 +8,6 @@
 #include <queue>
 using namespace std;
 
-// 进程文件的路径
-string process_filename = "process.txt";
-
 struct Process
 {
     /* 表示一个进程 */

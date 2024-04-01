@@ -86,3 +86,72 @@ void shortestJobFirstScheduling(const vector<Process>& originalProcesses) {
     showProcesses(finished);
 }
 
+// 时间片轮转调度算法
+void roundRobinScheduling(const std::vector<Process>& originalProcesses, float timeQuantum) {
+    // 创建一个副本，用于修改进程状态
+    std::vector<Process> processes = originalProcesses;
+    // 按照到达时间进行排序
+    sortbyArriveTime(processes);
+    // 当前时间
+    float curTime = 0;
+    // 进程索引
+    int index = 0;
+    // 就绪的进程队列
+    std::queue<Process> readyProcesses;
+    // 完成的进程
+    std::vector<Process> finished;
+
+    // 算法的过程
+    // 仍有进程没有完成调度, 循环
+    while (finished.size() < processes.size()) {
+        // 当前时间已经到达的进程更新加入队列
+        for (int i = index; (i < processes.size()) && (processes[i].arrive_time <= curTime); i++) {
+            readyProcesses.push(processes[i]);
+            index++;
+        }
+        // 没有进程就绪时，等待下一个进程到达
+        if (readyProcesses.empty()) {
+            readyProcesses.push(processes[index]);
+            curTime = processes[index].arrive_time;
+        }
+        // 有进程就绪时，按照时间片轮转的方式执行进程
+        else {
+            Process curProcess = readyProcesses.front();
+            cout << "[RR] Time: " << curTime << "\tProcess " << curProcess.name << " begins. " << endl;
+            readyProcesses.pop();
+
+            // 判断时间片是否足够执行完当前进程
+            if (curProcess.running_time <= timeQuantum) {
+                // 当前时间加上当前进程的运行时间
+                curTime += curProcess.running_time;
+                // 更新进程的属性
+                curProcess.turnaround_time = curTime - curProcess.arrive_time;                      // 周转时间
+                curProcess.waiting_time = curProcess.turnaround_time - curProcess.running_time;     // 等待时间
+                curProcess.response_time = curProcess.waiting_time;                                 // 响应时间即等待时间
+                curProcess.utilization = curProcess.running_time / curProcess.turnaround_time;      // 利用率
+                // 添加进程到完成队列
+                finished.push_back(curProcess);
+            } else {
+                // 当前时间加上一个时间片
+                curTime += timeQuantum;
+                // 更新当前进程的运行时间和剩余时间
+                curProcess.running_time -= timeQuantum;
+                // 当前时间已经到达的进程更新加入队列
+                for (int i = index; (i < processes.size()) && (processes[i].arrive_time <= curTime); i++) {
+                    readyProcesses.push(processes[i]);
+                    index++;
+                }
+                // 将进程重新加入队列
+                readyProcesses.push(curProcess);
+            }
+        }
+    }
+
+    // 展示完成的进程
+    showProcesses(finished);
+}
+
+// 多级队列调度算法
+void multiLevelFeedbackQueueScheduling(const vector<Process>& originalProcesses, vector<float> timeQuantums) {
+    
+}

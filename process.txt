@@ -4,4 +4,5 @@ process3 2 4 0
 process4 3 1 0
 process5 5 11 0
 process6 6 3 0
-process7 50 1 0
+process7 8 2 0
+process8 50 1 0

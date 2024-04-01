@@ -234,6 +234,91 @@ void multiLevelFeedbackQueueScheduling(const vector<Process>& originalProcesses,
     showResults(finished);
 }
 
+// 有抢占的多级队列调度
+void multiLevelPreemptiveFeedbackQueueScheduling(const vector<Process>& originalProcesses, vector<float> timeQuantums){
+    // 按照到达时间进行排序
+    vector<Process> t = originalProcesses;
+    sortbyArriveTime(t);
+    // 创建一个能够记录队列的进程列表
+    vector<MLFQ> processes = {};
+    for(Process t1: t) {
+        MLFQ tempMLFQ = {};
+        tempMLFQ.p = t1;
+        processes.push_back(tempMLFQ);
+    }
+    // 当前时间
+    float curTime = 0;
+    // 进程索引
+    int index = 0;
+    // 就绪的进程队列
+    queue<MLFQ> readyProcesses;
+    // 完成的进程
+    vector<MLFQ> finished;
+    float spare = 0;
+
+    // 算法的过程
+    while (finished.size() < processes.size()) {
+        // 将到达时间小于等于当前时间的进程加入就绪队列
+        while (index < processes.size() && processes[index].p.arrive_time <= curTime) {
+            readyProcesses.push(processes[index]);
+            index++;
+        }
+        // 如果就绪队列非空，则执行就绪队列中的进程
+        if (!readyProcesses.empty()) {
+            sortMLFQ(readyProcesses);
+            MLFQ curMLFQ = readyProcesses.front();
+            cout << "[PMLFQ] Time: " << curTime << "\tProcess " << curMLFQ.p.name << " begins. " << endl;
+            curMLFQ.p.response_time = (curMLFQ.p.response_time==-0.25)? curTime : curMLFQ.p.response_time;
+            readyProcesses.pop();
+
+            // 获取当前进程所在队列的时间片大小
+            float timeQuantum = timeQuantums[curMLFQ.q];
+
+            // 在当前进程执行完毕之前，是否发生抢占情况的判断
+            float temp = curTime + min(timeQuantum, curMLFQ.p.remaining_time);
+            if (index < processes.size() && processes[index].p.arrive_time < temp) {
+                // 这个进程结束前，有至少一个新的进程到达，需要执行新的进程，将这个进程重新放回队列
+                readyProcesses.push(processes[index]);
+                curMLFQ.preem_time = processes[index].p.arrive_time - curTime;
+                curMLFQ.p.remaining_time -= curMLFQ.preem_time; 
+                curTime = processes[index].p.arrive_time;
+                index++;
+                readyProcesses.push(curMLFQ);
+                continue;
+            }
+
+            // 判断当前队列的时间片是否足够执行完当前进程
+            if (curMLFQ.p.remaining_time <= timeQuantum) {
+                // 更新当前进程的属性
+                curTime += curMLFQ.p.remaining_time;
+                curMLFQ.p.turnaround_time = curTime - curMLFQ.p.arrive_time;
+                curMLFQ.p.waiting_time = curMLFQ.p.turnaround_time - curMLFQ.p.running_time;
+                curMLFQ.p.utilization = curMLFQ.p.running_time / curMLFQ.p.turnaround_time;
+
+                // 将当前进程加入完成队列
+                finished.push_back(curMLFQ);
+            } else {
+                // 一个时间片的运行逻辑
+                curTime += (timeQuantum - curMLFQ.preem_time);
+                curMLFQ.p.remaining_time -= (timeQuantum - curMLFQ.preem_time);
+                curMLFQ.preem_time = 0;
+                // 将当前进程加入下一优先级队列
+                curMLFQ.q = min(curMLFQ.q + 1, static_cast<unsigned>(timeQuantums.size() - 1));
+                readyProcesses.push(curMLFQ);
+            }
+        } else {
+            // 如果就绪队列为空，将时间推进到下一个进程的到达时间
+            spare += (processes[index].p.arrive_time - curTime);
+            curTime = processes[index].p.arrive_time;
+        }
+    }
+
+    // 展示完成的进程
+    cout << "[Ending] Time: " << curTime << endl;
+    cout << "CPU Utilization Rate: " << 1 - spare/curTime << endl;
+    showResults(finished);
+}
+
 // 展示结果
 void showResults(const vector<Process>& results){
     float totalTurnaroundTime = 0;

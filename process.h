@@ -26,8 +26,9 @@ struct Process
 // 多级队列调度算法时，需要保存一些临时变量，使用这个结构体
 struct MLFQ
 {
-    Process p;              // 进程本身
-    unsigned q = 0;         // 当前进程所处的队列
+    Process p;               // 进程本身
+    unsigned q = 0;          // 当前进程所处的队列
+    unsigned preem_time = 0; // 当前进程被抢占前，已经执行当前时间片的时间
 };
 
 // 所有的进程
@@ -92,6 +93,9 @@ void sortMLFQ(queue<MLFQ>& Ps) {
 
 // 多级队列调度算法
 void multiLevelFeedbackQueueScheduling(const vector<Process>& originalProcesses, vector<float> timeQuantums);
+
+// 有抢占的多级队列调度
+void multiLevelPreemptiveFeedbackQueueScheduling(const vector<Process>& originalProcesses, vector<float> timeQuantums);
 
 // 展示结果
 void showResults(const vector<Process>& results);

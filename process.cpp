@@ -25,11 +25,11 @@ void readProcessesFromFile(const string& filename, vector<Process>& Processes) {
 void showProcesses(const vector<Process>& Processes) {
     if (!Processes.empty()) {
         // 打印表头
-        cout << setw(10) << "ID" << setw(20) << "Name" << setw(15) << "Arrive Time" << setw(15) << "Running Time" << setw(15) << "Priority" << setw(20) << endl;
+        cout << setw(10) << "ID" << setw(20) << "Name" << setw(15) << "Arrive Time" << setw(15) << "Running Time" << setw(15) << "Priority" << endl;
         // 遍历并打印每个进程的信息
         for (size_t i = 0; i < Processes.size(); ++i) {
             const Process& process = Processes[i];
-            cout << setw(10) << i + 1 << setw(20) << process.name << setw(15) << process.arrive_time << setw(15) << process.running_time << setw(15) << process.priority << setw(20) << endl;
+            cout << setw(10) << i + 1 << setw(20) << process.name << setw(15) << process.arrive_time << setw(15) << process.running_time << setw(15) << process.priority << endl;
         }
     } else {
         cout << "No processes to show." << endl;
@@ -42,6 +42,8 @@ void shortestJobFirstScheduling(const vector<Process>& originalProcesses) {
     vector<Process> processes = originalProcesses;
     // 按照到达时间进行排序
     sortbyArriveTime(processes);
+    // Cpu空闲的时间
+    float spare = 0;
 
     // 当前时间
     float curTime = 0;
@@ -63,6 +65,7 @@ void shortestJobFirstScheduling(const vector<Process>& originalProcesses) {
         // 没有进程就绪时，等待下一个进程到达
         if(readyProcesses.empty()){
             readyProcesses.push(processes[index]);
+            spare += (processes[index].arrive_time - curTime);
             curTime = processes[index].arrive_time;
         } 
         // 有进程就绪时，执行当前队列的时间最短的进程
@@ -84,6 +87,8 @@ void shortestJobFirstScheduling(const vector<Process>& originalProcesses) {
         }
     }
     // 展示结果
+    cout << "[Ending] Time: " << curTime << endl;
+    cout << "CPU Utilization Rate: " << 1 - spare/curTime << endl;
     showResults(finished);
 }
 
@@ -101,6 +106,7 @@ void roundRobinScheduling(const std::vector<Process>& originalProcesses, float t
     std::queue<Process> readyProcesses;
     // 完成的进程
     std::vector<Process> finished;
+    float spare = 0;
 
     // 算法的过程
     // 仍有进程没有完成调度, 循环
@@ -113,6 +119,7 @@ void roundRobinScheduling(const std::vector<Process>& originalProcesses, float t
         // 没有进程就绪时，等待下一个进程到达
         if (readyProcesses.empty()) {
             readyProcesses.push(processes[index]);
+            spare += (processes[index].arrive_time - curTime);
             curTime = processes[index].arrive_time;
         }
         // 有进程就绪时，按照时间片轮转的方式执行进程
@@ -149,6 +156,8 @@ void roundRobinScheduling(const std::vector<Process>& originalProcesses, float t
     }
 
     // 展示完成的进程
+    cout << "[Ending] Time: " << curTime << endl;
+    cout << "CPU Utilization Rate: " << 1 - spare/curTime << endl;
     showResults(finished);
 }
 
@@ -172,6 +181,8 @@ void multiLevelFeedbackQueueScheduling(const vector<Process>& originalProcesses,
     queue<MLFQ> readyProcesses;
     // 完成的进程
     vector<MLFQ> finished;
+
+    float spare = 0;
 
     // 算法的过程
     while (finished.size() < processes.size()) {
@@ -211,11 +222,14 @@ void multiLevelFeedbackQueueScheduling(const vector<Process>& originalProcesses,
             }
         } else {
             // 如果就绪队列为空，将时间推进到下一个进程的到达时间
+            spare += (processes[index].p.arrive_time - curTime);
             curTime = processes[index].p.arrive_time;
         }
     }
 
     // 展示完成的进程
+    cout << "[Ending] Time: " << curTime << endl;
+    cout << "CPU Utilization Rate: " << 1 - spare/curTime << endl;
     showResults(finished);
 }
 

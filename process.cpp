@@ -9,6 +9,7 @@ void readProcessesFromFile(const string& filename, vector<Process>& Processes) {
             istringstream iss(line);
             Process process;
             if (iss >> process.name >> process.arrive_time >> process.running_time >> process.priority) {
+                process.remaining_time = process.running_time;
                 Processes.push_back(process);
             } else {
                 cerr << "Error: Invalid process data in file." << endl;
@@ -125,17 +126,17 @@ void roundRobinScheduling(const std::vector<Process>& originalProcesses, float t
         // 有进程就绪时，按照时间片轮转的方式执行进程
         else {
             Process curProcess = readyProcesses.front();
+            curProcess.response_time = (curProcess.response_time==-0.25)? curTime : curProcess.response_time;
             cout << "[RR] Time: " << curTime << "\tProcess " << curProcess.name << " begins. " << endl;
             readyProcesses.pop();
 
             // 判断时间片是否足够执行完当前进程
-            if (curProcess.running_time <= timeQuantum) {
+            if (curProcess.remaining_time <= timeQuantum) {
                 // 当前时间加上当前进程的运行时间
-                curTime += curProcess.running_time;
+                curTime += curProcess.remaining_time;
                 // 更新进程的属性
                 curProcess.turnaround_time = curTime - curProcess.arrive_time;                      // 周转时间
                 curProcess.waiting_time = curProcess.turnaround_time - curProcess.running_time;     // 等待时间
-                curProcess.response_time = curProcess.waiting_time;                                 // 响应时间即等待时间
                 curProcess.utilization = curProcess.running_time / curProcess.turnaround_time;      // 利用率
                 // 添加进程到完成队列
                 finished.push_back(curProcess);
@@ -143,7 +144,7 @@ void roundRobinScheduling(const std::vector<Process>& originalProcesses, float t
                 // 当前时间加上一个时间片
                 curTime += timeQuantum;
                 // 更新当前进程的运行时间和剩余时间
-                curProcess.running_time -= timeQuantum;
+                curProcess.remaining_time -= timeQuantum;
                 // 当前时间已经到达的进程更新加入队列
                 for (int i = index; (i < processes.size()) && (processes[i].arrive_time <= curTime); i++) {
                     readyProcesses.push(processes[i]);
@@ -196,18 +197,18 @@ void multiLevelFeedbackQueueScheduling(const vector<Process>& originalProcesses,
             sortMLFQ(readyProcesses);
             MLFQ curMLFQ = readyProcesses.front();
             cout << "[MLFQ] Time: " << curTime << "\tProcess " << curMLFQ.p.name << " begins. " << endl;
+            curMLFQ.p.response_time = (curMLFQ.p.response_time==-0.25)? curTime : curMLFQ.p.response_time;
             readyProcesses.pop();
 
             // 获取当前进程所在队列的时间片大小
             float timeQuantum = timeQuantums[curMLFQ.q];
 
             // 判断当前队列的时间片是否足够执行完当前进程
-            if (curMLFQ.p.running_time <= timeQuantum) {
+            if (curMLFQ.p.remaining_time <= timeQuantum) {
                 // 更新当前进程的属性
-                curTime += curMLFQ.p.running_time;
+                curTime += curMLFQ.p.remaining_time;
                 curMLFQ.p.turnaround_time = curTime - curMLFQ.p.arrive_time;
                 curMLFQ.p.waiting_time = curMLFQ.p.turnaround_time - curMLFQ.p.running_time;
-                curMLFQ.p.response_time = curMLFQ.p.waiting_time;
                 curMLFQ.p.utilization = curMLFQ.p.running_time / curMLFQ.p.turnaround_time;
 
                 // 将当前进程加入完成队列
@@ -215,7 +216,7 @@ void multiLevelFeedbackQueueScheduling(const vector<Process>& originalProcesses,
             } else {
                 // 一个时间片的运行逻辑
                 curTime += timeQuantum;
-                curMLFQ.p.running_time -= timeQuantum;
+                curMLFQ.p.remaining_time -= timeQuantum;
                 // 将当前进程加入下一优先级队列
                 curMLFQ.q = min(curMLFQ.q + 1, static_cast<unsigned>(timeQuantums.size() - 1));
                 readyProcesses.push(curMLFQ);

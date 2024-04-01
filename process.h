@@ -14,11 +14,12 @@ struct Process
     string name;             // 进程的名称
     float arrive_time = 0;   // 进程的到达时间
     float running_time = 0;  // 进程的运行时间
+    float remaining_time = 0;  // 进程的剩余时间
     unsigned priority = 0;   // 进程优先级，用无符号整数表示
     /* 用于计算平均周转时间/平均带权周转时间，平均等待时间、平均响应时间、利用率 */
     float turnaround_time = 0;  // 周转时间
     float waiting_time = 0;     // 等待时间
-    float response_time = 0;    // 响应时间
+    float response_time = -0.25;    // 响应时间
     float utilization = 0;      // 利用率
 };
 
@@ -48,7 +49,7 @@ void showProcesses(const vector<Process>& Processes);
 // 时间片轮转调度算法
 void roundRobinScheduling(const std::vector<Process>& originalProcesses, float timeQuantum);
 
-// 将一个队列的进程按运行时间排序
+// 将一个队列的进程按剩余运行时间排序
 void sortbyRunningTime(queue<Process>& Ps) {
     // 临时向量，用于存储并排序
     vector<Process> tempVec;
@@ -59,7 +60,7 @@ void sortbyRunningTime(queue<Process>& Ps) {
     }
     // 排序
     sort(tempVec.begin(), tempVec.end(), [](const Process& a, const Process& b) {
-        return a.running_time < b.running_time;
+        return a.remaining_time < b.remaining_time;
     });
     // 将向量返回队列
     for (const Process& p : tempVec) {

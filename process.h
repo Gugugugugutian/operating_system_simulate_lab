@@ -14,12 +14,19 @@ struct Process
     string name;             // 进程的名称
     float arrive_time = 0;   // 进程的到达时间
     float running_time = 0;  // 进程的运行时间
-    unsigned priority = 0;   // 进程优先级，用无符号整数表示，最小为0 
+    unsigned priority = 0;   // 进程优先级，用无符号整数表示
     /* 用于计算平均周转时间/平均带权周转时间，平均等待时间、平均响应时间、利用率 */
     float turnaround_time = 0;  // 周转时间
     float waiting_time = 0;     // 等待时间
     float response_time = 0;    // 响应时间
     float utilization = 0;      // 利用率
+};
+
+// 多级队列调度算法时，需要保存一些临时变量，使用这个结构体
+struct MLFQ
+{
+    Process p;              // 进程本身
+    unsigned q = 0;         // 当前进程所处的队列
 };
 
 // 所有的进程
@@ -63,5 +70,28 @@ void sortbyRunningTime(queue<Process>& Ps) {
 // 短进程优先调度算法
 void shortestJobFirstScheduling(const vector<Process>& originalProcesses);
 
+// 将一个多级队列按所处的队列顺序
+void sortMLFQ(queue<MLFQ>& Ps) {
+    // 临时向量，用于存储并排序
+    vector<MLFQ> tempVec;
+    // 从队列中取出进程放到向量中
+    while (!Ps.empty()) {
+        tempVec.push_back(Ps.front());
+        Ps.pop();
+    }
+    // 排序
+    sort(tempVec.begin(), tempVec.end(), [](const MLFQ& a, const MLFQ& b) {
+        return a.q < b.q;
+    });
+    // 将向量返回队列
+    for (const MLFQ& p : tempVec) {
+        Ps.push(p);
+    }
+}
+
 // 多级队列调度算法
 void multiLevelFeedbackQueueScheduling(const vector<Process>& originalProcesses, vector<float> timeQuantums);
+
+// 展示结果
+void showResults(const vector<Process>& results);
+void showResults(const vector<MLFQ>& results);

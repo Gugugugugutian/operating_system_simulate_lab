@@ -153,5 +153,67 @@ void roundRobinScheduling(const std::vector<Process>& originalProcesses, float t
 
 // 多级队列调度算法
 void multiLevelFeedbackQueueScheduling(const vector<Process>& originalProcesses, vector<float> timeQuantums) {
+    // 按照到达时间进行排序
+    vector<Process> t = originalProcesses;
+    sortbyArriveTime(t);
+    // 创建一个能够记录队列的进程列表
+    vector<MLFQ> processes = {};
+    for(Process t1: t) {
+        MLFQ tempMLFQ = {};
+        tempMLFQ.p = t1;
+        processes.push_back(tempMLFQ);
+    }
+    // 当前时间
+    float curTime = 0;
+    // 进程索引
+    int index = 0;
+    // 就绪的进程队列
+    queue<MLFQ> readyProcesses;
+    // 完成的进程
+    vector<MLFQ> finished;
+
+    // 算法的过程
+    while (finished.size() < processes.size()) {
+        // 将到达时间小于等于当前时间的进程加入就绪队列
+        while (index < processes.size() && processes[index].p.arrive_time <= curTime) {
+            readyProcesses.push(processes[index]);
+            index++;
+        }
+        // 如果就绪队列非空，则执行就绪队列中的进程
+        if (!readyProcesses.empty()) {
+            sortMLFQ(readyProcesses);
+            MLFQ curMLFQ = readyProcesses.front();
+            cout << "[MLFQ] Time: " << curTime << "\tProcess " << curMLFQ.p.name << " begins. " << endl;
+            readyProcesses.pop();
+
+            // 获取当前进程所在队列的时间片大小
+            float timeQuantum = timeQuantums[curMLFQ.q];
+
+            // 判断当前队列的时间片是否足够执行完当前进程
+            if (curMLFQ.p.running_time <= timeQuantum) {
+                // 更新当前进程的属性
+                curTime += curMLFQ.p.running_time;
+                curMLFQ.p.turnaround_time = curTime - curMLFQ.p.arrive_time;
+                curMLFQ.p.waiting_time = curMLFQ.p.turnaround_time - curMLFQ.p.running_time;
+                curMLFQ.p.response_time = curMLFQ.p.waiting_time;
+                curMLFQ.p.utilization = curMLFQ.p.running_time / curMLFQ.p.turnaround_time;
+
+                // 将当前进程加入完成队列
+                finished.push_back(curMLFQ);
+            } else {
+                // 一个时间片的运行逻辑
+                curTime += timeQuantum;
+                curMLFQ.p.running_time -= timeQuantum;
+                // 将当前进程加入下一优先级队列
+                curMLFQ.q = min(curMLFQ.q + 1, static_cast<unsigned>(timeQuantums.size() - 1));
+                readyProcesses.push(curMLFQ);
+            }
+        } else {
+            // 如果就绪队列为空，将时间推进到下一个进程的到达时间
+            curTime = processes[index].p.arrive_time;
+        }
+    }
+
+    // 展示完成的进程
     
 }

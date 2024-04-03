@@ -267,7 +267,7 @@ void multiLevelPreemptiveFeedbackQueueScheduling(const vector<Process>& original
         if (!readyProcesses.empty()) {
             sortMLFQ(readyProcesses);
             MLFQ curMLFQ = readyProcesses.front();
-            cout << "[PMLFQ] Time: " << curTime << "\tProcess " << curMLFQ.p.name << " begins. " << endl;
+            cout << "[PMLFQ] Time: " << curTime << "\tProcess " << curMLFQ.p.name << " begins. Quene: " << min(curMLFQ.q, static_cast<unsigned>(timeQuantums.size()-1)) << endl;
             curMLFQ.p.response_time = (curMLFQ.p.response_time==-0.25)? curTime : curMLFQ.p.response_time;
             readyProcesses.pop();
 
@@ -299,8 +299,10 @@ void multiLevelPreemptiveFeedbackQueueScheduling(const vector<Process>& original
                 finished.push_back(curMLFQ);
             } else {
                 // 一个时间片的运行逻辑
-                curTime += (timeQuantum - curMLFQ.preem_time);
-                curMLFQ.p.remaining_time -= (timeQuantum - curMLFQ.preem_time);
+                curTime += timeQuantum;
+                // curTime += (timeQuantum - curMLFQ.preem_time);
+                curMLFQ.p.remaining_time -= timeQuantum;
+                // curMLFQ.p.remaining_time -= (timeQuantum - curMLFQ.preem_time);
                 curMLFQ.preem_time = 0;
                 // 将当前进程加入下一优先级队列
                 curMLFQ.q = min(curMLFQ.q + 1, static_cast<unsigned>(timeQuantums.size() - 1));

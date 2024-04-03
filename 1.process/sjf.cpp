@@ -1,10 +1,10 @@
 #include "process.cpp"
 
 // 进程文件的路径
-string process_filename = "process.txt";
+string process_filename = "testsjf.txt";
 
 int main() {
     readProcessesFromFile(process_filename, Processes);
     showProcesses(Processes);
-    multiLevelPreemptiveFeedbackQueueScheduling(Processes, {1,2,4});
+    shortestJobFirstScheduling(Processes);
 }

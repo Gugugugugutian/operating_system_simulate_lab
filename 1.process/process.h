@@ -60,9 +60,18 @@ void sortbyRunningTime(queue<Process>& Ps) {
         Ps.pop();
     }
     // 排序
-    sort(tempVec.begin(), tempVec.end(), [](const Process& a, const Process& b) {
-        return a.remaining_time < b.remaining_time;
-    });
+    for (int i = 0; i < tempVec.size() - 1; ++i) {
+        bool swapped = false;
+        for (int j = 0; j < tempVec.size() - i - 1; ++j) {
+            if (tempVec[j].remaining_time > tempVec[j + 1].remaining_time) {
+                std::swap(tempVec[j], tempVec[j + 1]);
+                swapped = true;
+            }
+        }
+        if (!swapped) {
+            break;
+        }
+    }
     // 将向量返回队列
     for (const Process& p : tempVec) {
         Ps.push(p);
@@ -82,9 +91,19 @@ void sortMLFQ(queue<MLFQ>& Ps) {
         Ps.pop();
     }
     // 排序
-    sort(tempVec.begin(), tempVec.end(), [](const MLFQ& a, const MLFQ& b) {
-        return a.q < b.q;
-    });
+    // 这里使用冒泡排序，是不希望改变同级队列之间的相对顺序
+    for (int i = 0; i < tempVec.size() - 1; ++i) {
+        bool swapped = false;
+        for (int j = 0; j < tempVec.size() - i - 1; ++j) {
+            if (tempVec[j].q > tempVec[j + 1].q) {
+                std::swap(tempVec[j], tempVec[j + 1]);
+                swapped = true;
+            }
+        }
+        if (!swapped) {
+            break;
+        }
+    }
     // 将向量返回队列
     for (const MLFQ& p : tempVec) {
         Ps.push(p);

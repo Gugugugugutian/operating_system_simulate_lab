@@ -74,7 +74,7 @@ void shortestJobFirstScheduling(const vector<Process>& originalProcesses) {
             // 先按运行时间排序，再选出运行时间最短的进程执行
             sortbyRunningTime(readyProcesses);
             Process curProcess = readyProcesses.front();
-            cout << "[SJF] Time: " << curTime << "\tProcess " << curProcess.name << " begins. " << endl;
+            cout << "[SJF] Time: " << curTime << ", Process " << curProcess.name << " begins. " << endl;
             
             curTime += curProcess.running_time;
 
@@ -127,7 +127,7 @@ void roundRobinScheduling(const std::vector<Process>& originalProcesses, float t
         else {
             Process curProcess = readyProcesses.front();
             curProcess.response_time = (curProcess.response_time==-0.25)? curTime : curProcess.response_time;
-            cout << "[RR] Time: " << curTime << "\tProcess " << curProcess.name << " begins. " << endl;
+            cout << "[RR] Time: " << curTime << ", Process " << curProcess.name << " begins. " << endl;
             readyProcesses.pop();
 
             // 判断时间片是否足够执行完当前进程
@@ -196,7 +196,7 @@ void multiLevelFeedbackQueueScheduling(const vector<Process>& originalProcesses,
         if (!readyProcesses.empty()) {
             sortMLFQ(readyProcesses);
             MLFQ curMLFQ = readyProcesses.front();
-            cout << "[MLFQ] Time: " << curTime << "\tProcess " << curMLFQ.p.name << " begins. " << endl;
+            cout << "[MLFQ] Time: " << curTime << ", Process " << curMLFQ.p.name << " begins. " << endl;
             curMLFQ.p.response_time = (curMLFQ.p.response_time==-0.25)? curTime : curMLFQ.p.response_time;
             readyProcesses.pop();
 
@@ -267,8 +267,8 @@ void multiLevelPreemptiveFeedbackQueueScheduling(const vector<Process>& original
         if (!readyProcesses.empty()) {
             sortMLFQ(readyProcesses);
             MLFQ curMLFQ = readyProcesses.front();
-            cout << "[PMLFQ] Time: " << curTime << "\tProcess " << curMLFQ.p.name << " begins. Quene: " << min(curMLFQ.q, static_cast<unsigned>(timeQuantums.size()-1)) << endl;
-            curMLFQ.p.response_time = (curMLFQ.p.response_time==-0.25)? curTime : curMLFQ.p.response_time;
+            cout << "[PMLFQ] Time: " << curTime << ", Process " << curMLFQ.p.name << " begins. Quene: " << min(curMLFQ.q, static_cast<unsigned>(timeQuantums.size()-1)) << endl;
+            curMLFQ.p.response_time = (curMLFQ.p.response_time==-0.25)? curTime - curMLFQ.p.arrive_time : curMLFQ.p.response_time;
             readyProcesses.pop();
 
             // 获取当前进程所在队列的时间片大小
@@ -278,12 +278,12 @@ void multiLevelPreemptiveFeedbackQueueScheduling(const vector<Process>& original
             float temp = curTime + min(timeQuantum, curMLFQ.p.remaining_time);
             if (index < processes.size() && processes[index].p.arrive_time < temp) {
                 // 这个进程结束前，有至少一个新的进程到达，需要执行新的进程，将这个进程重新放回队列
-                readyProcesses.push(processes[index]);
                 curMLFQ.preem_time = processes[index].p.arrive_time - curTime;
                 curMLFQ.p.remaining_time -= curMLFQ.preem_time; 
                 curTime = processes[index].p.arrive_time;
-                index++;
                 readyProcesses.push(curMLFQ);
+                readyProcesses.push(processes[index]);
+                index++;
                 continue;
             }
 
@@ -327,59 +327,54 @@ void showResults(const vector<Process>& results){
     float totalResponseTime = 0;
     float totalWaitingTime = 0;
     float totalUtilization = 0;
-    cout << setw(10) << "Process Name" << setw(25) <<
+    cout << setw(50) << "Process Name" << setw(20) <<
             "Turnaround time" << setw(20) << 
             "Response time" << setw(20) << 
-            "Waiting time" << setw(15) <<
+            "Waiting time" << setw(20) <<
             "Utilization" << endl;
     for (const Process process: results) {
-        cout << setw(10) << process.name << setw(25) <<
+        cout << setw(50) << process.name << setw(20) <<
                 process.turnaround_time << setw(20) << 
                 process.response_time << setw(20) << 
-                process.waiting_time << setw(15) << 
-                process.utilization << endl;
+                process.waiting_time << setw(20) << 
+                // process.utilization <<
+                endl;
         totalTurnaroundTime += process.turnaround_time;
         totalResponseTime += process.response_time;
         totalWaitingTime += process.waiting_time;
-        totalUtilization += process.utilization;
     }
     float averageTurnaroundTime = totalTurnaroundTime / results.size();
     float averageResponseTime = totalResponseTime / results.size();
     float averageWaitingTime = totalWaitingTime / results.size();
-    float averageUtilization = totalUtilization / results.size();
-    cout << endl << "Average Turnaround Time: " << averageTurnaroundTime << " ms" << endl;
-    cout << "Average Response Time: " << averageResponseTime << " ms" << endl;
-    cout << "Average Waiting Time: " << averageWaitingTime << " ms" << endl;
-    cout << "Average Utilization: " << fixed << setprecision(2) << averageUtilization * 100 << " %" << endl;
+    cout << endl << "Average Turnaround Time: " << averageTurnaroundTime << " " << endl;
+    cout << "Average Response Time: " << averageResponseTime << " " << endl;
+    cout << "Average Waiting Time: " << averageWaitingTime << " " << endl;
 }
 void showResults(const vector<MLFQ>& results){
     float totalTurnaroundTime = 0;
     float totalResponseTime = 0;
     float totalWaitingTime = 0;
-    float totalUtilization = 0;
-    cout << setw(10) << "Process Name" << setw(25) <<
+    cout << setw(50) << "Process Name" << setw(20) <<
             "Turnaround time" << setw(20) << 
             "Response time" << setw(20) << 
-            "Waiting time" << setw(15) <<
+            "Waiting time" << setw(20) <<
             "Utilization" << endl;
     for (const MLFQ& mlfq : results) {
         const Process& process = mlfq.p;
-        cout << setw(10) << process.name << setw(25) <<
+        cout << setw(50) << process.name << setw(20) <<
                 process.turnaround_time << setw(20) << 
                 process.response_time << setw(20) << 
-                process.waiting_time << setw(15) << 
-                process.utilization << endl;
+                process.waiting_time << setw(20) << 
+                // process.utilization << 
+                endl;
         totalTurnaroundTime += process.turnaround_time;
         totalResponseTime += process.response_time;
         totalWaitingTime += process.waiting_time;
-        totalUtilization += process.utilization;
     }
     float averageTurnaroundTime = totalTurnaroundTime / results.size();
     float averageResponseTime = totalResponseTime / results.size();
     float averageWaitingTime = totalWaitingTime / results.size();
-    float averageUtilization = totalUtilization / results.size();
-    cout << endl << "Average Turnaround Time: " << averageTurnaroundTime << " ms" << endl;
-    cout << "Average Response Time: " << averageResponseTime << " ms" << endl;
-    cout << "Average Waiting Time: " << averageWaitingTime << " ms" << endl;
-    cout << "Average Utilization: " << fixed << setprecision(2) << averageUtilization * 100 << " %" << endl;
+    cout << endl << "Average Turnaround Time: " << averageTurnaroundTime << " " << endl;
+    cout << "Average Response Time: " << averageResponseTime << " " << endl;
+    cout << "Average Waiting Time: " << averageWaitingTime << " " << endl;
 }

@@ -1,0 +1,236 @@
+        ID                Name    Arrive Time   Running Time       Priority
+         1     database.system              0              4              0
+         2         manager.app              1              6              2
+         3       kernel.system              3              2              1
+         4        handler.file              4              5              0
+         5      server.network              6              3              0
+         6       interface.app              7              7              2
+         7    scheduler.system              8              1              0
+         8          input.user             10              8              1
+         9      monitor.system             12              4              0
+        10   controller.device             15              3              0
+        11      printer.system             17              2              1
+        12      scanner.device             18              6              0
+        13    analytics.system             20              5              2
+        14    security.manager             22              3              1
+        15       backup.system             24              4              0
+        16    notification.app             26              7              0
+        17     database.backup             28              1              2
+        18      scheduler.task             30              9              1
+        19    report.generator             32              2              0
+        20       dashboard.app             35              3              0
+        21       logger.system             37              6              1
+        22  authentication.app             39              4              0
+        23         mail.system             41              5              0
+        24       search.engine             43              2              1
+        25   inventory.manager             45              1              0
+        26      gateway.system             47              8              2
+        27         billing.app             49              3              0
+        28 dashboard.generator             50              7              0
+        29       load.balancer             52              4              1
+        30     firewall.system             55              2              0
+        31   encryption.module             57              5              0
+        32virtualization.manager             60              3              1
+        33    ticketing.system             62              1              0
+        34   scheduler.process             64              6              0
+        35  deployment.manager             66              4              2
+        36         API.gateway             68              2              1
+        37      monitoring.app             70              8              0
+        38    inventory.system             73              3              0
+        39      billing.system             75              5              1
+        40      access.control             78              1              0
+        41       scheduler.job             80              7              0
+        42    database.manager             82              4              2
+        43authentication.system             84              3              1
+        44       reporting.app             86              2              0
+        45      backup.manager             88              6              0
+[PMLFQ] Time: 0, Process database.system begins. Quene: 0
+[PMLFQ] Time: 1, Process manager.app begins. Quene: 0
+[PMLFQ] Time: 2, Process database.system begins. Quene: 1
+[PMLFQ] Time: 3, Process kernel.system begins. Quene: 0
+[PMLFQ] Time: 4, Process handler.file begins. Quene: 0
+[PMLFQ] Time: 5, Process manager.app begins. Quene: 1
+[PMLFQ] Time: 6, Process server.network begins. Quene: 0
+[PMLFQ] Time: 7, Process interface.app begins. Quene: 0
+[PMLFQ] Time: 8, Process scheduler.system begins. Quene: 0
+[PMLFQ] Time: 9, Process database.system begins. Quene: 1
+[PMLFQ] Time: 10, Process input.user begins. Quene: 0
+[PMLFQ] Time: 11, Process kernel.system begins. Quene: 1
+[PMLFQ] Time: 12, Process monitor.system begins. Quene: 0
+[PMLFQ] Time: 13, Process handler.file begins. Quene: 1
+[PMLFQ] Time: 15, Process controller.device begins. Quene: 0
+[PMLFQ] Time: 16, Process manager.app begins. Quene: 1
+[PMLFQ] Time: 17, Process printer.system begins. Quene: 0
+[PMLFQ] Time: 18, Process scanner.device begins. Quene: 0
+[PMLFQ] Time: 19, Process server.network begins. Quene: 1
+[PMLFQ] Time: 20, Process analytics.system begins. Quene: 0
+[PMLFQ] Time: 21, Process interface.app begins. Quene: 1
+[PMLFQ] Time: 22, Process security.manager begins. Quene: 0
+[PMLFQ] Time: 23, Process database.system begins. Quene: 1
+[PMLFQ] Time: 24, Process backup.system begins. Quene: 0
+[PMLFQ] Time: 25, Process input.user begins. Quene: 1
+[PMLFQ] Time: 26, Process notification.app begins. Quene: 0
+[PMLFQ] Time: 27, Process monitor.system begins. Quene: 1
+[PMLFQ] Time: 28, Process database.backup begins. Quene: 0
+[PMLFQ] Time: 29, Process controller.device begins. Quene: 1
+[PMLFQ] Time: 30, Process scheduler.task begins. Quene: 0
+[PMLFQ] Time: 31, Process manager.app begins. Quene: 1
+[PMLFQ] Time: 32, Process report.generator begins. Quene: 0
+[PMLFQ] Time: 33, Process printer.system begins. Quene: 1
+[PMLFQ] Time: 34, Process scanner.device begins. Quene: 1
+[PMLFQ] Time: 35, Process dashboard.app begins. Quene: 0
+[PMLFQ] Time: 36, Process server.network begins. Quene: 1
+[PMLFQ] Time: 37, Process logger.system begins. Quene: 0
+[PMLFQ] Time: 38, Process analytics.system begins. Quene: 1
+[PMLFQ] Time: 39, Process authentication.app begins. Quene: 0
+[PMLFQ] Time: 40, Process interface.app begins. Quene: 1
+[PMLFQ] Time: 41, Process mail.system begins. Quene: 0
+[PMLFQ] Time: 42, Process security.manager begins. Quene: 1
+[PMLFQ] Time: 43, Process search.engine begins. Quene: 0
+[PMLFQ] Time: 44, Process backup.system begins. Quene: 1
+[PMLFQ] Time: 45, Process inventory.manager begins. Quene: 0
+[PMLFQ] Time: 46, Process input.user begins. Quene: 1
+[PMLFQ] Time: 47, Process gateway.system begins. Quene: 0
+[PMLFQ] Time: 48, Process notification.app begins. Quene: 1
+[PMLFQ] Time: 49, Process billing.app begins. Quene: 0
+[PMLFQ] Time: 50, Process dashboard.generator begins. Quene: 0
+[PMLFQ] Time: 51, Process monitor.system begins. Quene: 1
+[PMLFQ] Time: 52, Process load.balancer begins. Quene: 0
+[PMLFQ] Time: 53, Process controller.device begins. Quene: 1
+[PMLFQ] Time: 54, Process scheduler.task begins. Quene: 1
+[PMLFQ] Time: 55, Process firewall.system begins. Quene: 0
+[PMLFQ] Time: 56, Process manager.app begins. Quene: 1
+[PMLFQ] Time: 57, Process encryption.module begins. Quene: 0
+[PMLFQ] Time: 58, Process report.generator begins. Quene: 1
+[PMLFQ] Time: 59, Process scanner.device begins. Quene: 1
+[PMLFQ] Time: 60, Process virtualization.manager begins. Quene: 0
+[PMLFQ] Time: 61, Process dashboard.app begins. Quene: 1
+[PMLFQ] Time: 62, Process ticketing.system begins. Quene: 0
+[PMLFQ] Time: 63, Process logger.system begins. Quene: 1
+[PMLFQ] Time: 64, Process scheduler.process begins. Quene: 0
+[PMLFQ] Time: 65, Process analytics.system begins. Quene: 1
+[PMLFQ] Time: 66, Process deployment.manager begins. Quene: 0
+[PMLFQ] Time: 67, Process authentication.app begins. Quene: 1
+[PMLFQ] Time: 68, Process API.gateway begins. Quene: 0
+[PMLFQ] Time: 69, Process interface.app begins. Quene: 1
+[PMLFQ] Time: 70, Process monitoring.app begins. Quene: 0
+[PMLFQ] Time: 71, Process mail.system begins. Quene: 1
+[PMLFQ] Time: 73, Process inventory.system begins. Quene: 0
+[PMLFQ] Time: 74, Process security.manager begins. Quene: 1
+[PMLFQ] Time: 75, Process billing.system begins. Quene: 0
+[PMLFQ] Time: 76, Process search.engine begins. Quene: 1
+[PMLFQ] Time: 77, Process backup.system begins. Quene: 1
+[PMLFQ] Time: 78, Process access.control begins. Quene: 0
+[PMLFQ] Time: 79, Process input.user begins. Quene: 1
+[PMLFQ] Time: 80, Process scheduler.job begins. Quene: 0
+[PMLFQ] Time: 81, Process gateway.system begins. Quene: 1
+[PMLFQ] Time: 82, Process database.manager begins. Quene: 0
+[PMLFQ] Time: 83, Process notification.app begins. Quene: 1
+[PMLFQ] Time: 84, Process authentication.system begins. Quene: 0
+[PMLFQ] Time: 85, Process billing.app begins. Quene: 1
+[PMLFQ] Time: 86, Process reporting.app begins. Quene: 0
+[PMLFQ] Time: 87, Process dashboard.generator begins. Quene: 1
+[PMLFQ] Time: 88, Process backup.manager begins. Quene: 0
+[PMLFQ] Time: 89, Process monitor.system begins. Quene: 1
+[PMLFQ] Time: 90, Process load.balancer begins. Quene: 1
+[PMLFQ] Time: 92, Process scheduler.task begins. Quene: 1
+[PMLFQ] Time: 94, Process firewall.system begins. Quene: 1
+[PMLFQ] Time: 95, Process manager.app begins. Quene: 1
+[PMLFQ] Time: 96, Process encryption.module begins. Quene: 1
+[PMLFQ] Time: 98, Process scanner.device begins. Quene: 1
+[PMLFQ] Time: 100, Process virtualization.manager begins. Quene: 1
+[PMLFQ] Time: 102, Process dashboard.app begins. Quene: 1
+[PMLFQ] Time: 103, Process logger.system begins. Quene: 1
+[PMLFQ] Time: 105, Process scheduler.process begins. Quene: 1
+[PMLFQ] Time: 107, Process analytics.system begins. Quene: 1
+[PMLFQ] Time: 109, Process deployment.manager begins. Quene: 1
+[PMLFQ] Time: 111, Process authentication.app begins. Quene: 1
+[PMLFQ] Time: 113, Process API.gateway begins. Quene: 1
+[PMLFQ] Time: 114, Process interface.app begins. Quene: 1
+[PMLFQ] Time: 116, Process monitoring.app begins. Quene: 1
+[PMLFQ] Time: 118, Process inventory.system begins. Quene: 1
+[PMLFQ] Time: 120, Process billing.system begins. Quene: 1
+[PMLFQ] Time: 122, Process backup.system begins. Quene: 1
+[PMLFQ] Time: 123, Process input.user begins. Quene: 1
+[PMLFQ] Time: 125, Process scheduler.job begins. Quene: 1
+[PMLFQ] Time: 127, Process gateway.system begins. Quene: 1
+[PMLFQ] Time: 129, Process database.manager begins. Quene: 1
+[PMLFQ] Time: 131, Process notification.app begins. Quene: 1
+[PMLFQ] Time: 133, Process authentication.system begins. Quene: 1
+[PMLFQ] Time: 135, Process billing.app begins. Quene: 1
+[PMLFQ] Time: 136, Process reporting.app begins. Quene: 1
+[PMLFQ] Time: 137, Process dashboard.generator begins. Quene: 1
+[PMLFQ] Time: 139, Process backup.manager begins. Quene: 1
+[PMLFQ] Time: 141, Process handler.file begins. Quene: 2
+[PMLFQ] Time: 143, Process mail.system begins. Quene: 2
+[PMLFQ] Time: 145, Process load.balancer begins. Quene: 2
+[PMLFQ] Time: 146, Process scheduler.task begins. Quene: 2
+[PMLFQ] Time: 150, Process encryption.module begins. Quene: 2
+[PMLFQ] Time: 152, Process scanner.device begins. Quene: 2
+[PMLFQ] Time: 153, Process logger.system begins. Quene: 2
+[PMLFQ] Time: 155, Process scheduler.process begins. Quene: 2
+[PMLFQ] Time: 158, Process deployment.manager begins. Quene: 2
+[PMLFQ] Time: 159, Process interface.app begins. Quene: 2
+[PMLFQ] Time: 160, Process monitoring.app begins. Quene: 2
+[PMLFQ] Time: 164, Process billing.system begins. Quene: 2
+[PMLFQ] Time: 166, Process input.user begins. Quene: 2
+[PMLFQ] Time: 168, Process scheduler.job begins. Quene: 2
+[PMLFQ] Time: 172, Process gateway.system begins. Quene: 2
+[PMLFQ] Time: 176, Process database.manager begins. Quene: 2
+[PMLFQ] Time: 177, Process notification.app begins. Quene: 2
+[PMLFQ] Time: 179, Process dashboard.generator begins. Quene: 2
+[PMLFQ] Time: 182, Process backup.manager begins. Quene: 2
+[PMLFQ] Time: 185, Process scheduler.task begins. Quene: 2
+[PMLFQ] Time: 186, Process monitoring.app begins. Quene: 2
+[Ending] Time: 187
+CPU Utilization Rate: 1
+                                      Process Name     Turnaround time       Response time        Waiting time         Utilization
+                                  scheduler.system                   1                   0                   0
+                                     kernel.system                   9                   0                   7
+                                   database.system                  24                   0                  20
+                                   database.backup                   1                   0                   0
+                                    printer.system                  17                   0                  15
+                                    server.network                  31                   0                  28
+                                 inventory.manager                   1                   0                   0
+                                 controller.device                  39                   0                  36
+                                  report.generator                  27                   0                  25
+                                  ticketing.system                   1                   0                   0
+                                  security.manager                  53                   0                  50
+                                     search.engine                  34                   0                  32
+                                    access.control                   1                   0                   0
+                                    monitor.system                  78                   0                  74
+                                   firewall.system                  40                   0                  38
+                                       manager.app                  95                   0                  89
+                            virtualization.manager                  42                   0                  39
+                                     dashboard.app                  68                   0                  65
+                                  analytics.system                  89                   0                  84
+                                authentication.app                  74                   0                  70
+                                       API.gateway                  46                   0                  44
+                                  inventory.system                  47                   0                  44
+                                     backup.system                  99                   0                  95
+                             authentication.system                  51                   0                  48
+                                       billing.app                  87                   0                  84
+                                     reporting.app                  51                   0                  49
+                                      handler.file                 139                   0                 134
+                                       mail.system                 104                   0                  99
+                                     load.balancer                  94                   0                  90
+                                 encryption.module                  95                   0                  90
+                                    scanner.device                 135                   0                 129
+                                     logger.system                 118                   0                 112
+                                 scheduler.process                  94                   0                  88
+                                deployment.manager                  93                   0                  89
+                                     interface.app                 153                   0                 146
+                                    billing.system                  91                   0                  86
+                                        input.user                 158                   0                 150
+                                     scheduler.job                  92                   0                  85
+                                    gateway.system                 129                   0                 121
+                                  database.manager                  95                   0                  91
+                                  notification.app                 153                   0                 146
+                               dashboard.generator                 132                   0                 125
+                                    backup.manager                  97                   0                  91
+                                    scheduler.task                 156                   0                 147
+                                    monitoring.app                 117                   0                 109
+
+Average Turnaround Time: 74.4667
+Average Response Time: 0
+Average Waiting Time: 70.3111

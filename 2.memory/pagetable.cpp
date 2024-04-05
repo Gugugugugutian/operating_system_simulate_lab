@@ -1,5 +1,5 @@
-# include "pagetable.h"
-
+#include "pagetable.h"
+#include "random.h"
 // 表示各个进程的页表访问顺序
 struct access
 {
@@ -90,7 +90,7 @@ void FIFO(const access& a, vector<Process>& p = processes){
         }
         // 实现页表项的更新
         ppn = replacePtItem(pt, replace, vpn);
-        showPgTables(pt);
+        // showPgTables(pt);
         cout << "=================================================" << endl;    
         cout << "Time\tPid\tAddress\tVPN\tResult\tPPN\t" << endl;
     }
@@ -154,7 +154,7 @@ void LRU(const access& a, vector<Process>& p = processes){
         }
         // 实现页表项的更新
         ppn = replacePtItem(pt, replace, vpn);
-        showPgTables(pt);
+        // showPgTables(pt);
         cout << "=================================================" << endl;    
         cout << "Time\tPid\tAddress\tVPN\tResult\tPPN\t" << endl;
     }
@@ -174,17 +174,140 @@ void LRU(){
             continue;
         } else {
             // 执行这条指令
-            FIFO(a);
+            LRU(a);
         }
     }
 }
 
 // 使用CLOCK算法依次访问地址
-void CLOCK(){
+int clk = 0;      // 时钟算法用到的时钟
+void CLOCK(const access& a, vector<Process>& p = processes){
+    pagetable& pt = p[a.pid].pt;    // 对应进程的页表
+    tick++;
 
+    int vpn = a.logicAddress / PAGE_SIZE; // virtual page number
+    int bias = a.logicAddress % PAGE_SIZE;    // in-page bias
+    int ppn = -1;    // physical page number(only shows when hits)
+
+    int hit = -1;   // page table hits
+    for(pagetableitem& item: pt.items) {
+        if(item.valid == 1 && item.virtual_page_number == vpn) {
+            hit = item.id;
+            ppn = item.physical_page_number;
+            item.hit_time = tick;  // 时间可以作为ref位使用，分为0和非0两种情况
+        }
+    }
+
+    if(hit!=-1) {
+        // 如果命中 输出命中结果
+        cout << tick << "\t" << a.pid << "\t" << a.logicAddress << "\t" << vpn << "\tHIT\t" << ppn << "\t" << PhysicalMemory.data[ppn].data[bias] << endl;
+    } else {
+        // 如果不命中，使用CLOCK替换页面
+        cout << tick << "\t" << a.pid << "\t" << a.logicAddress << "\t" << vpn << "\tMISS\t" << endl;
+        // 确定要替换的页表项 
+        int replace = -1;
+        while (true)
+        {
+            pagetableitem& c = pt.items[clk]; 
+            if(!c.valid || c.hit_time == 0){
+                // 页表项无效或者ref位为0，替换这一个页表项，clk+1
+                replace = clk;
+                clk = (clk + 1) % PAGE_TABLE_SIZE;
+                break;
+            } 
+            else {
+                // 页表项有效但没有命中，ref位置0，clk+1，继续循环
+                c.hit_time = 0;
+                clk = (clk + 1) % PAGE_TABLE_SIZE;
+            }
+        }
+        
+        // 实现页表项的更新
+        ppn = replacePtItem(pt, replace, vpn);
+        // showPgTables(pt);
+        cout << "=================================================" << endl;    
+        cout << "Time\tPid\tAddress\tVPN\tResult\tPPN\tData" << endl;
+    }
+
+    // 完成内存的写操作  
+    if (a.op == 1) {
+        // 写操作
+        PhysicalMemory.data[ppn].data[bias] = a.wd;
+    }
+}
+void CLOCK(){
+    cout << "CLOCK: " << endl;
+    cout << "Time\tPid\tAddress\tVPN\tResult\tPPN\tData" << endl;
+    for(const access& a: accesss_order){
+        if(!checkAccess(a)) {
+            // 对应进程不存在，跳过这条指令
+            continue;
+        } else {
+            // 执行这条指令
+            CLOCK(a);
+        }
+    }
 }
 
 // 使用随机置换算法访问地址
-void RS(){
+// 使用LRU的方式访问地址
+void RS(const access& a, vector<Process>& p = processes){
+    pagetable& pt = p[a.pid].pt;    // 对应进程的页表
+    tick++;
 
+    int vpn = a.logicAddress / PAGE_SIZE; // virtual page number
+    int bias = a.logicAddress % PAGE_SIZE;    // in-page bias
+    int ppn = -1;    // physical page number(only shows when hits)
+
+    int hit = -1;   // page table hits
+    for(pagetableitem& item: pt.items) {
+        if(item.valid == 1 && item.virtual_page_number == vpn) {
+            hit = item.id;
+            ppn = item.physical_page_number;
+            item.hit_time = tick;
+        }
+    }
+
+    if(hit!=-1) {
+        // 如果命中 输出命中结果
+        cout << tick << "\t" << a.pid << "\t" << a.logicAddress << "\t" << vpn << "\tHIT\t" << ppn << "\t" << PhysicalMemory.data[ppn].data[bias] << endl;
+    } else {
+        // 如果不命中，使用随机算法替换页面
+        cout << tick << "\t" << a.pid << "\t" << a.logicAddress << "\t" << vpn << "\tMISS\t" << endl;
+        // 确定要替换的页表项 
+        int replace = generateRandomNumber();
+        std::cout << "[Random] " << replace << std::endl;
+        for(int i=0; i<PAGE_TABLE_SIZE; i++) {
+            if(!pt.items[i].valid) {
+                // 页表第i项还未使用
+                replace = i;
+                break;
+            }
+        }
+
+        // 实现页表项的更新
+        ppn = replacePtItem(pt, replace, vpn);
+        // showPgTables(pt);
+        cout << "=================================================" << endl;    
+        cout << "Time\tPid\tAddress\tVPN\tResult\tPPN\t" << endl;
+    }
+
+    // 完成内存的写操作 
+    if(a.op == 1) {
+        // 写操作
+        PhysicalMemory.data[ppn].data[bias] = a.wd;
+    }
+}
+void RS(){
+    cout << "RS: " << endl;
+    cout << "Time\tPid\tAddress\tVPN\tResult\tPPN\tData" << endl;
+    for(const access& a: accesss_order){
+        if(!checkAccess(a)) {
+            // 对应进程不存在，跳过这条指令
+            continue;
+        } else {
+            // 执行这条指令
+            RS(a);
+        }
+    }
 }

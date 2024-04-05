@@ -1,9 +1,8 @@
-#define PAGE_SIZE 8    // 页面的大小，单位为int
-#define P_MEM_SIZE 16    // 物理内存的大小，单位为页面数
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include "size.h"
 
 // 内存页面
 struct page

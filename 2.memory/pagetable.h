@@ -3,7 +3,6 @@
 #include <vector>
 using namespace std;
 
-#define PAGE_TABLE_SIZE 4               // 页表的大小，单位为页表项
 int tick = 0;   // 表示执行的时间，每执行一个访问则+1
 
 // 页表项
@@ -75,16 +74,21 @@ void showPgTables() {
 
 // 替换页表中的第i项
 int replacePtItem(pagetable& pt, const int& i, const int& vpn) {
+    int ppn = getPage();    // 从内存中自动请求一个页
+    int tppn = pt.items[i].physical_page_number;
     // 释放被替换的页表项
-    PhysicalMemory.data[pt.items[i].physical_page_number].dirty = 0;    // 修改位置0
-
+    if(pt.items[i].valid)
+    {
+        PhysicalMemory.data[tppn].dirty = 0;    // 修改位置0
+    }
     // 修改页表项
     pt.items[i].virtual_page_number = vpn;  // 新的虚拟页号
-    int ppn = getPage();    // 从内存中自动请求一个页
     pt.items[i].physical_page_number = ppn;
     pt.items[i].valid = 1;
     pt.items[i].hit_time = tick;
     cout << "[PageTable] Updated: Index-" << i << ", Vpn-" << vpn << ", Ppn-" << ppn << ". " << endl;
+
+    
     return ppn;
 }
 
@@ -120,10 +124,10 @@ void readProcesses(const string& file_path = "test_processes.txt") {
         Process newProcess(!processes.empty()? processes.back().pid + 1 : 0);
         newProcess.name = processName;
 
-        int physicalPage;
-        int virtualPage; 
+        int physicalPage = 0;
+        int virtualPage = 0; 
         int pageIndex = 0;
-        while (iss >> virtualPage && iss >> physicalPage && pageIndex < PAGE_TABLE_SIZE) {
+        while (iss >> virtualPage >> physicalPage && pageIndex < PAGE_TABLE_SIZE) {
             newProcess.pt.items[pageIndex].physical_page_number = physicalPage;
             newProcess.pt.items[pageIndex].virtual_page_number = virtualPage;
             newProcess.pt.items[pageIndex].valid = true;

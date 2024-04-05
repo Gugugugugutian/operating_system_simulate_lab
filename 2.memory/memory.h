@@ -1,8 +1,9 @@
-#define PAGE_SIZE 16    // 页面的大小，单位为int
-#define P_MEM_SIZE 8 // 物理内存的大小，单位为页面数
+#define PAGE_SIZE 8    // 页面的大小，单位为int
+#define P_MEM_SIZE 16    // 物理内存的大小，单位为页面数
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 // 内存页面
 struct page
@@ -27,11 +28,10 @@ struct page
 // 物理内存
 struct physi_memory
 {
-    int dirty = 0;
     page data[P_MEM_SIZE];              // 物理内存中的数据
 
     // 初始化物理内存
-    physi_memory(): dirty(0){
+    physi_memory(){
         for(int i=0; i<P_MEM_SIZE; i++) {
             page newPage(i);
             data[i] = newPage;
@@ -41,28 +41,12 @@ struct physi_memory
 
 physi_memory PhysicalMemory;            // 程序中的物理内存
 
-
-// 调用内存中的一个页
-page getPage(physi_memory &mem, int pageNumber) {
-    if (pageNumber <= P_MEM_SIZE) {
-        return mem.data[pageNumber];
-    }
-    else return mem.data[0];
-}
-
-// 将一个页放回物理内存
-void retPage(physi_memory &mem, const page& page) {
-    if(page.dirty) {
-        mem.data[page.pageNumber] = page;
-    }
-}
-
 // 从文件中读入内存
 /*  内存存储方式：
     内存以每一页为一行，每一个数字为一个数据的形式，顺序存储在test_pmemdata.txt文件中。
     没有写出的数字全部以0表示
 */
-void readPhysicalMemory(physi_memory &mem, std::string datadir = "test_pmemdata.txt") {
+void readPhysicalMemory(physi_memory &mem = PhysicalMemory, std::string datadir = "test_pmemdata.txt") {
     std::ifstream file(datadir);
     if (!file.is_open()) {
         std::cerr << "[Read Physical Memory] Failed to open " << datadir << std::endl;
@@ -84,11 +68,12 @@ void readPhysicalMemory(physi_memory &mem, std::string datadir = "test_pmemdata.
 }
 
 // 展示物理内存的内容
-void showPhysicalMemory(const physi_memory &mem) {
+void showPhysicalMemory(const physi_memory &mem = PhysicalMemory) {
     std::cout << "[Physical Memory]" << std::endl;
+    std::cout << "Dirty\t" << "Page\t" << "Data\t" << std::endl;
     for (int i = 0; i < P_MEM_SIZE; ++i) {
         const page &currentPage = mem.data[i];
-        std::cout << "Page " << currentPage.pageNumber << ":\t";
+        std::cout << currentPage.dirty << "\t" << currentPage.pageNumber << "\t";
         for (int j = 0; j < PAGE_SIZE; ++j) {
             std::cout << currentPage.data[j] << "\t";
         }

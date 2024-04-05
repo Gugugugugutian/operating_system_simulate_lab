@@ -4,6 +4,6 @@ int main(){
     readProcesses();
     showPgTables();
     readOrder();
-    FIFO();
+    LRU();
     showPhysicalMemory();
 }

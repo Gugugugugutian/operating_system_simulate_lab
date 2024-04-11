@@ -10,7 +10,8 @@ struct pt_item
     int ppn = 0;          // 物理页号
     int disk_pn = 0;      // 数据在磁盘中的位置
 
-    int hit_time = 0;     // 上次命中或者修改的时间
+    int in_time = 0;      // 加入物理内存的时间
+    int hit_time = 0;     // 上次命中的时间
     int ref_sign = 1;     // Clock算法中的引用位
     pt_item(){};
 };
@@ -35,7 +36,7 @@ struct pt
 // 进程
 struct process
 {
-    const int pid = -1;             // pid
+    int pid = -1;             // pid
     string name = "undefined";      // name of process
     
     int size = 0;                   // 进程页表的大小
@@ -62,22 +63,123 @@ vector<process> pr_s = {};
 // 访问顺序
 vector<access> access_s = {};
 
+int alg = 0;    // 使用的进程调度算法
+
 // 从文件读入进程和进程的大小 
 void readProcess(vector<process> &p = pr_s, const string path="test_process.txt");
 
 // 从文件读入访问顺序
 void readAccess(vector<access> &a = access_s, const string& file_path = "test_access.txt");
 
-// 更新页表项：将页表的第vpn页物理页号设置为ppn，标记为有效。
-void updatePageTable(pt &pageTable, int vpn, int ppn);
+// 展示所有进程和进程的页表
+void showPgTables(const pt& pt) {
+    cout << "Valid\t" << "VPN\t" << "PPN\t" << "Hits time\t" << endl;
+    for (int i = 0; i < pt.size; ++i) {
+        const auto& item = pt.items[i];
+        cout << item.valid << "\t" << item.vpn << "\t" << item.ppn << "\t" << item.hit_time << endl;
+    }
+    cout << endl;
+}
+void showProcesses() {
+    for (const auto& process : pr_s) {
+        cout << "Process ID: " << process.pid << ", Name: " << process.name << endl;
+        cout << "Page Table:" << endl;
+        showPgTables(process.process_pt);
+    }
+}
+
+// 更新页表：将页表的第vpn页物理页号设置为ppn，标记为有效。
+void updatePageTable(process& p, int vpn, int ppn){
+    pt& pageTable = p.process_pt;
+    // 确保vpn在页表范围内
+    if (vpn >= 0 && vpn < pageTable.size) {
+        // 更新页表项
+        pageTable.items[vpn].ppn = ppn;
+        pageTable.items[vpn].valid = true;
+        // 更新页表项的时间信息
+        pageTable.items[vpn].in_time = tick;
+        pageTable.items[vpn].hit_time = tick;
+        // 更新物理块的信息
+        PhysicalMemory.data[ppn].pid = p.pid;
+        PhysicalMemory.data[ppn].vpn = vpn;
+        PhysicalMemory.data[ppn].in_time = tick;
+        PhysicalMemory.data[ppn].hit_time = tick;
+    } else {
+        std::cerr << "Error: VPN " << vpn << " out of range." << std::endl;
+    }
+}
 
 // 页面替换：将物理内存的ppn页放回外存old_a地址，从new_a地址取回新的一页放回ppn
-void replacePage(memory &mem, disk &d, int ppn, int old_a, int new_a);
+void replacePage(memory &mem, disk &d, int ppn, int old_a, int new_a){
+    // 确保 ppn 在物理内存范围内
+    if (ppn >= 0 && ppn < P_MEM_SIZE) {
+        // 将物理内存中的页面写回磁盘
+        if(old_a >=0 && old_a < DISK_SIZE) {
+            // 将物理块对应的原来的页表项设为无效
+            if(PhysicalMemory.data[ppn].valid) {
+                int tpid = PhysicalMemory.data[ppn].pid;
+                int tvpn = PhysicalMemory.data[ppn].vpn;
+                process& tp = pr_s[tpid];
+                tp.process_pt.items[tvpn].valid = false;
+                cout << "[PageTable] pid: " << tpid << ", Updated: Vpn-" << tvpn << " to Invalid. " << endl;
+            }
+            toDisk(d, mem, ppn, old_a);
+        }
+        // 从外存调入新的页面到物理内存
+        if(new_a >=0 && new_a < DISK_SIZE) {
+            fromDisk(d, mem, ppn, new_a);
+        }
+        else {
+            cerr << "Error: New Address out of range." <<endl;
+        }
+    } else {
+        std::cerr << "Error: PPN " << ppn << " out of range." << std::endl;
+    }
+}
 
-// 
+// 检查访问进程是否存在
+bool checkAccess(const access& a) {
+    bool exists = false;
+    for (const process& p : pr_s) {
+        if (a.pid == p.pid) {
+            // 进程存在
+            exists = true;
+            break; // 已经找到，可以提前结束循环
+        }
+    }
+    return exists;
+}
+
+// 从物理内存中找出空页面(valid = 0)，返回物理页号
+int getEmptyPage(const memory &mem = PhysicalMemory) {
+    for (int i = 0; i < P_MEM_SIZE; ++i) {
+        if (!mem.data[i].valid) {
+            // 找到空页面，返回物理页号
+            return i;
+        }
+    }
+    // 没有找到空页面，返回 -1 表示失败
+    return -1;
+}
 
 // 使用FIFO算法实现调度
-void FIFO();
+void FIFO(const access& a, vector<process>& p = pr_s);
+void FIFO(const vector<access> accs = access_s){
+    cout << "FIFO: " << endl;
+    cout << "Time\tPid\tAddress\tVPN\tResult\tPPN\tData" << endl;
+    for(const access& a: accs){
+        if(!checkAccess(a)) {
+            // 对应进程不存在，跳过这条指令
+            continue;
+        } else {
+            // 执行这条指令
+            FIFO(a);
+            // show(PhysicalMemory);
+            // showPgTables(pr_s[a.pid].process_pt);
+        }
+        tick++;
+    }
+}
 
 // 使用RS算法实现调度
 void RS();

@@ -1,5 +1,4 @@
 #include "pt.cpp"
-int alg = 0;    // 使用的进程调度算法
 
 string dataPath = "test_disk.txt";
 string processPath = "test_process.txt";
@@ -13,7 +12,7 @@ bool chooseAlgo(int& i = alg){
     switch (i)
     {
     case 0:
-        // FIFO();
+        FIFO();
         break;
     case 1:
         // RS();
@@ -35,8 +34,12 @@ bool chooseAlgo(int& i = alg){
 int main(){
     // 从文件内读入数据、访问顺序和进程
     readDisk(Disk, dataPath);
+    // show(Disk);
     readProcess(pr_s, processPath);
-    readAccess(access_s);
+    readAccess(access_s, accessPath);
     // 用户选择调度算法
     while(!chooseAlgo());
+    // 展示内存
+    show(PhysicalMemory);
+    showProcesses();
 }

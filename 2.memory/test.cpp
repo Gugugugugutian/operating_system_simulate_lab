@@ -12,7 +12,7 @@ bool chooseAlgo(int& i = alg){
     switch (i)
     {
     case 0:
-        FIFO();
+        // FIFO();
         break;
     case 1:
         // RS();
@@ -39,6 +39,8 @@ int main(){
     readAccess(access_s, accessPath);
     // 用户选择调度算法
     while(!chooseAlgo());
+    // 实现算法
+    schedule();
     // 展示内存
     show(PhysicalMemory);
     showProcesses();

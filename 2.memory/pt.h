@@ -64,6 +64,7 @@ vector<process> pr_s = {};
 vector<access> access_s = {};
 
 int alg = 0;    // 使用的进程调度算法
+int clk = 0;    // 时钟算法用到的时钟
 
 // 从文件读入进程和进程的大小 
 void readProcess(vector<process> &p = pr_s, const string path="test_process.txt");
@@ -104,6 +105,7 @@ void updatePageTable(process& p, int vpn, int ppn){
         PhysicalMemory.data[ppn].vpn = vpn;
         PhysicalMemory.data[ppn].in_time = tick;
         PhysicalMemory.data[ppn].hit_time = tick;
+        PhysicalMemory.data[ppn].ref_sign = 1;
     } else {
         std::cerr << "Error: VPN " << vpn << " out of range." << std::endl;
     }
@@ -164,7 +166,7 @@ int getEmptyPage(const memory &mem = PhysicalMemory) {
 
 // 使用FIFO算法实现调度
 void FIFO(const access& a, vector<process>& p = pr_s);
-void FIFO(const vector<access> accs = access_s){
+void FIFO(const vector<access>& accs = access_s){
     cout << "FIFO: " << endl;
     cout << "Time\tPid\tAddress\tVPN\tResult\tPPN\tData" << endl;
     for(const access& a: accs){
@@ -181,11 +183,37 @@ void FIFO(const vector<access> accs = access_s){
     }
 }
 
-// 使用RS算法实现调度
-void RS();
-
-// 使用LRU算法实现调度
-void LRU();
-
-// 使用CLOCK算法实现进程调度
-void CLOCK();
+// 使用不同算法实现调度（通用函数）
+void schedule(const access& a, const int &al = alg, vector<process>& p = pr_s);
+void schedule(const int& al = alg, const vector<access>& accs = access_s){
+    switch (al)
+    {
+    case 0:
+        cout << "FIFO: " << endl;
+        break;
+    case 1:
+        cout << "RS: " << endl;
+        break;
+    case 2:
+        cout << "LRU: " << endl;
+        break;
+    case 3:
+        cout << "CLOCK: " << endl;
+        break;
+    default:
+        return;
+    }
+    cout << "Time\tPid\tAddress\tVPN\tResult\tPPN\tData" << endl;
+    for(const access& a: accs){
+        if(!checkAccess(a)) {
+            // 对应进程不存在，跳过这条指令
+            continue;
+        } else {
+            // 执行这条指令
+            schedule(a, al);
+            // show(PhysicalMemory);
+            // showPgTables(pr_s[a.pid].process_pt);
+        }
+        tick++;
+    }
+}

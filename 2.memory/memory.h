@@ -37,15 +37,29 @@ struct physi_memory
         }
     };
 };
+physi_memory PhysicalMemory;
 
-physi_memory PhysicalMemory;            // 程序中的物理内存
 
-// 从文件中读入内存
-/*  内存存储方式：
-    内存以每一页为一行，每一个数字为一个数据的形式，顺序存储在test_pmemdata.txt文件中。
+struct disk
+{
+    page data[DISK_SIZE];              // 磁盘中的数据
+
+    // 初始化物理内存
+    disk(){
+        for(int i=0; i<P_MEM_SIZE; i++) {
+            page newPage(i);
+            data[i] = newPage;
+        }
+    };
+};
+disk Disk;            // 磁盘/外存
+
+// 从文件中读入磁盘数据
+/*  存储方式：
+    以每一页为一行，每一个数字为一个数据的形式，顺序存储在test_pmemdata.txt文件中。
     没有写出的数字全部以0表示
 */
-void readPhysicalMemory(physi_memory &mem = PhysicalMemory, std::string datadir = "test_pmemdata.txt") {
+void readDisk(disk &mem = Disk, std::string datadir = "test_pmemdata.txt") {
     std::ifstream file(datadir);
     if (!file.is_open()) {
         std::cerr << "[Read Physical Memory] Failed to open " << datadir << std::endl;

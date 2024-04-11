@@ -8,88 +8,39 @@ int tick = 0;   // 表示执行的时间，每执行一个访问则+1
 // 页表项
 struct pagetableitem
 {
-    int id = -1;                        // 页表项的序号
     bool valid = false;                 // 页表项有效位
+    const int virtual_page_number = 0;           // 虚拟页号
 
     int physical_page_number = 0;          // 物理页号
-    int virtual_page_number = 0;           // 虚拟页号
+    int disk_page_number = 0;              // 数据在磁盘中的位置
 
     int hit_time = 0;       // 上次命中或者修改的时间
 
     pagetableitem(){};
 };
 
-// 页表
-struct pagetable
+// 进程，包含进程的页表
+struct Process
 {
-    pagetableitem items[PAGE_TABLE_SIZE]; // 页表项
+    const int pid = 0;                  // 进程id
+    int size = 0;                       // 进程页表的大小
+    string name = "undefined";          // 进程名称
+    vector<pagetableitem> pt = {};      // 进程的页表
 
-    // 初始化一个页表
-    pagetable(){
-        for (int i=0; i<PAGE_TABLE_SIZE; i++) {
-            items[i].id = i;
+    Process(int pid, int size): pid(pid), size(size){
+        for (int i=0; i<size; i++) {
+            pagetableitem pti = {};
+            pti.virtual_page_number = i;
+            pt.push_back(pti);
         }
     };
 };
 
-// 进程，包含进程的页表
-struct Process
-{
-    const int pid = 0;                        // 进程id
-    string name = "undefined";          // 进程名称
-    pagetable pt;                       // 进程的页表
-
-    Process(int pid): pid(pid){};
-};
-
 vector<Process> processes = {};         // 程序的所有进程，每个进程有一个页表 
 
-int getPage();
+// 调用进程调度算法
+void call(){
 
-// 创建进程
-void createProcess(string pname, int pid = 0) {
-    // 使pid转为有效数字
-    pid = ((!processes.empty())&&(pid<processes.back().pid)) ? processes.back().pid: pid;  
-    Process newProcess(pid);
-    newProcess.name = pname;
-    processes.push_back(newProcess);
-};
-
-// 展示所有进程和进程的页表
-void showPgTables(const pagetable& pt) {
-    cout << "ID\t" << "Valid\t" << "VPN\t" << "PPN\t" << "Updated/Hits time\t" << endl;
-    for (int i = 0; i < PAGE_TABLE_SIZE; ++i) {
-        const auto& item = pt.items[i];
-        cout << item.id << "\t" << item.valid << "\t" << item.virtual_page_number << "\t" << item.physical_page_number << "\t" << item.hit_time << endl;
-    }
-    cout << endl;
-}
-void showPgTables() {
-    for (const auto& process : processes) {
-        cout << "Process ID: " << process.pid << ", Name: " << process.name << endl;
-        cout << "Page Table:" << endl;
-        showPgTables(process.pt);
-    }
-}
-
-// 替换页表中的第i项
-int replacePtItem(pagetable& pt, const int& i, const int& vpn) {
-    int ppn = getPage();    // 从内存中自动请求一个页
-    int tppn = pt.items[i].physical_page_number;
-    // 释放被替换的页表项
-    if(pt.items[i].valid)
-    {
-        PhysicalMemory.data[tppn].dirty = 0;    // 修改位置0
-    }
-    // 修改页表项
-    pt.items[i].virtual_page_number = vpn;  // 新的虚拟页号
-    pt.items[i].physical_page_number = ppn;
-    pt.items[i].valid = 1;
-    pt.items[i].hit_time = tick;
-    cout << "[PageTable] Updated: Index-" << i << ", Vpn-" << vpn << ", Ppn-" << ppn << ". " << endl;
-
-    
-    return ppn;
 }
 
 // 从物理内存中取一个未使用的页，返回页号
@@ -101,9 +52,48 @@ int getPage() {
             return p.pageNumber;
         }
     }
-    // 没有未使用的页面，说明物理内存不够大，程序报错
-    cerr << "[Memory] Error: All pages occupied." << endl;
+    // 没有未使用的页面，说明物理内存已经填满，需要调度物理块的替换算法
+    cerr << "[Memory] Physical memory is full. " << endl;
     return -1;
+}
+
+// 创建进程
+void createProcess(string pname, int pid = 0) {
+    // 使pid转为有效数字
+    pid = ((!processes.empty())&&(pid<processes.back().pid)) ? processes.back().pid: pid;  
+    Process newProcess(pid);
+    newProcess.name = pname;
+    processes.push_back(newProcess);
+};
+
+// 展示所有进程和进程的页表
+void showPgTables(const vector<pagetableitem>& pt) {
+    cout << "Valid\t" << "VPN\t" << "PPN\t" << "Updated/Hits time\t" << endl;
+    for (int i = 0; i < P_MEM_SIZE; ++i) {
+        const auto& item = pt.items[i];
+        cout << item.valid << "\t" << item.virtual_page_number << "\t" << item.physical_page_number << "\t" << item.hit_time << endl;
+    }
+    cout << endl;
+}
+void showPgTables() {
+    for (const auto& process : processes) {
+        cout << "Process ID: " << process.pid << ", Name: " << process.name << endl;
+        cout << "Page Table:" << endl;
+        showPgTables(process.pt);
+    }
+}
+
+// 设置页表第i项为无效，第j项为有效，并寻找新的物理块（i， j是虚拟页号）
+int replacePtItem(vector<pagetableitem>& pt, const int& i, const int& j) {
+    if(!pt.items[i].valid || j>=P_MEM_SIZE) {
+        cout << "[Pgtable] Error, page number outbound or the origin page is already invalid." << endl;
+        return -1;
+    }
+    pt.items[i].valid = false; // 原页表项设为无效
+    int ppn = getPage();    // 从内存中自动请求一个页
+    pt.items[j].physical_page_number = ppn;
+    pt.items[j].valid = true;  // 新页表项设为有效
+    return ppn;
 }
 
 // 从文件（默认为test_processes.txt)读入进程和页表。
@@ -126,11 +116,13 @@ void readProcesses(const string& file_path = "test_processes.txt") {
 
         int physicalPage = 0;
         int virtualPage = 0; 
+        int diskPage = 0;
         int pageIndex = 0;
-        while (iss >> virtualPage >> physicalPage && pageIndex < PAGE_TABLE_SIZE) {
+        while (iss >> virtualPage >> physicalPage >> diskPage && pageIndex < P_MEM_SIZE) {
             newProcess.pt.items[pageIndex].physical_page_number = physicalPage;
             newProcess.pt.items[pageIndex].virtual_page_number = virtualPage;
-            newProcess.pt.items[pageIndex].valid = true;
+            newProcess.pt.items[pageIndex].disk_page_number = diskPage;
+            newProcess.pt.items[pageIndex].valid = false;
             newProcess.pt.items[pageIndex].hit_time = tick;
             PhysicalMemory.data[physicalPage].dirty = 1;
             pageIndex++;

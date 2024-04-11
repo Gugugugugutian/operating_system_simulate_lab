@@ -5,6 +5,6 @@ int main(){
     // showPgTables();
     readOrder();
     CLOCK();
-    showPhysicalMemory();
+    // showPhysicalMemory();
     showPgTables();
 }

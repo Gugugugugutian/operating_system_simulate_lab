@@ -43,20 +43,6 @@ void call(){
 
 }
 
-// 从物理内存中取一个未使用的页，返回页号
-int getPage() {
-    for(page& p: PhysicalMemory.data) {
-        // 有未使用的页面，返回页号
-        if(p.dirty == 0) {
-            p.dirty = 1;
-            return p.pageNumber;
-        }
-    }
-    // 没有未使用的页面，说明物理内存已经填满，需要调度物理块的替换算法
-    cerr << "[Memory] Physical memory is full. " << endl;
-    return -1;
-}
-
 // 创建进程
 void createProcess(string pname, int pid = 0) {
     // 使pid转为有效数字

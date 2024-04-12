@@ -1,40 +1,74 @@
 #include <vector>
 #include <string>
+#include <iostream>
 
-// 数据文件
-struct file_dat
+// 存储的大小
+#ifndef MEMORY_SIZE
+#define MEMORY_SIZE 1024
+#endif
+
+using namespace std;
+
+// 存储
+struct memory
 {
-    int size = 0;   // 文件大小（文件数）
-    std::string file_name = "undefined";  // 文件名
-    std::vector<int> content = {};  // 文件内容
+    char data[MEMORY_SIZE];
 
-    file_dat(std::string file_name):file_name(file_name){};  // 文件初始化
+    // 存储的初始化
+    memory(){
+        for(char d: data){
+            d = '/';
+        }
+    }
+};
+// 文件存储
+memory Disk = {};
+// 全局文件的id
+int globalFileId = 0;
+// 全局文件夹的id
+int globalFolderId = 0;
+
+// 文件索引
+struct file_index
+{
+    // 编号
+    const int id = -1;
+    // 文件名
+    std::string fileName = "undefined";
+    // 文件大小
+    const int size = 0;
+    // 文件的起始地址
+    const int head = 0;
+    // 例如，head = 0， size = 16，则文件占用内存的[0]到[15]的空间
+
+    // 文件索引项的初始化
+    file_index(int size, int head, int id = globalFileId): size(size), head(head), id(id) {
+        globalFileId++;
+        cout << "[SYSTEM] A new file id:" << id << "is created: from address [" << head << "] to [" << head+size << "]. " << endl;
+    }
 };
 
-// 文本文件
-struct file_txt
-{
-    int size = 0;   // 文件大小（文件数）
-    std::string file_name = "undefined";  // 文件名
-    std::vector<std::string> content = {};  // 文件内容
-
-    file_txt(std::string file_name):file_name(file_name){};  // 文件初始化
-};
-
-// 文件夹
+// 树状文件目录的文件夹
 struct folder
 {
-    std::string name = "undefined";   // 文件夹名
-    std::vector<folder*> folders = {};  // 文件夹中的其他文件夹
-    std::vector<file_dat*> dats = {};  // 文件夹中的数据文件
-    std::vector<file_txt*> txts = {};  // 文件夹中的文本文件
+    // 编号
+    const int id = -1;
+    // 文件夹名
+    string folderName = "undefined";
+    
+    // 存放下级文件夹的id
+    vector<int> subFolders = {};
+    // 存放文件夹内文件的id
+    vector<int> files = {};
 
-    folder(std::string name):name(name){};  // 文件夹初始化
+    // 文件夹的初始化
+    folder(int id = globalFolderId): id(id) {
+        globalFolderId++;
+        cout << "[SYSTEM] A new folder id:" << id << "is created. " << endl;
+    }
 };
 
-folder Root("Root");    // 根目录
-std::vector<folder> folders;
-std::vector<file_txt> txts;
-std::vector<file_dat> dats;
-
-std::string files_dir = "files";    // 文件的存储目录
+// 存放所有的文件索引
+vector<file_index> files = {};
+// 存放所有文件夹
+vector<folder> folders = {};

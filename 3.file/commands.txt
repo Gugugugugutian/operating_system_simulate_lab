@@ -1,0 +1,38 @@
+[DEBUG COMMANDS]
+
+/dbg m
+Show current memory.
+/dbg f
+Show files.
+[SYSTEM COMMANDS]
+
+/help
+Get help.
+/quit
+Quit the file system.
+/load
+Get files, memory data and folders from /data. 
+/save
+Store data and directories to /data folder. 
+[LIST COMMANDS]
+
+/list
+List current directory.
+/list [+id]
+List a specific directory. (eg. /list 5)
+[DIRECTORY COMMANDS]
+
+/cd [+id]
+Change directory. (eg. /cd 5)
+/cd 0
+Go to the root directory. 
+[FILE COMMANDS]
+
+/new [+folderName]
+Create a new folder in current directory. 
+/new [+fileName] [+size]
+Create a new file in current directory. 
+/new -d [+folderID] [+folderName]
+Create a new folder in specific directory. 
+/new -d [+folderID] [+fileName] [+size]
+Create a new file in specific directory. 

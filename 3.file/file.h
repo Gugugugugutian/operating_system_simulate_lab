@@ -24,9 +24,9 @@ struct file
     // 文件名
     std::string fileName = "undefined";
     // 文件大小
-    const int size = 0;
+    int size = 0;
     // 文件的起始地址
-    const int head = 0;
+    int head = 0;
     // 例如，head = 0， size = 16，则文件占用内存的[0]到[15]的空间
 
     // 文件索引项的初始化

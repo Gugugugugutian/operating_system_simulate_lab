@@ -4,6 +4,8 @@
 Show current memory.
 /dbg f
 Show files.
+/dbg g
+Test fragment merging algorithm. 
 [SYSTEM COMMANDS]
 
 /help

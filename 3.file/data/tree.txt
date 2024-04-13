@@ -4,3 +4,4 @@ in 1 file 1 userconfig 16 32
 in 1 file 3 userinfo_gutian 560 16
 in 1 folder 2 user_gutian
 in 2 file 2 gutian 48 512
+in 2 file 4 mergetest 1000 1

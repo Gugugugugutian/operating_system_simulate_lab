@@ -83,6 +83,10 @@ bool parsing(string &line)
         case 'f':
             // 文件的调试
             show();
+        case 'g':
+            // 碎片合并算法的调试
+            mergeMemory();
+            break;
         default:
             break;
         }
@@ -178,7 +182,7 @@ void interface()
     string command = ""; // 用户输入的命令
     bool quit = false;   // 用户退出
 
-    while (getline(cin, command))
+    while (!quit && getline(cin, command))
     {
         quit = parsing(command);
         showCurrentDir();

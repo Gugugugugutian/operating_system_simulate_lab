@@ -101,6 +101,7 @@ bool mergeMemory(vector<folder> &fs = folders, memory &mem = Disk)
     }
     memoryBack = fileInfo.back().start + fileInfo.back().size;
     cout << "[Merge] Fragments merged, now the memory is used: " << memoryBack << " / " << MEMORY_SIZE << ". " << endl;
+    return true;
 }
 
 // 初始化文件系统, 根目录 id = 0, 如果尝试删除会提示失败
@@ -151,8 +152,27 @@ void newFolder(const string &name, const int &dirId, int &id, vector<folder> &fs
     fs.push_back(newFolder);
 }
 
+// 写入内存
+void writeMemory(int head, const string& content, memory& mem = Disk) {
+    // 检查头部地址是否有效
+    if (head < 0 || head >= MEMORY_SIZE) {
+        cerr << "[Error] Invalid head position.\n";
+        return;
+    }
+    // 写内存
+    for (size_t i = 0; i < content.size(); ++i) {
+        // 检查没有发生内存越界
+        if (head + i >= MEMORY_SIZE) {
+            cerr << "[Warning] Writing beyond memory bounds. Truncating content.\n";
+            break;
+        }
+        // 逐字写入内存
+        mem.data[head + i] = content[i];
+    }
+}
+
 // 新建文件
-void newFile(const string &name, const int &size, const int &dirId, int head, int id, vector<folder> &fs)
+int newFile(const string &name, const int &size, const int &dirId, int head, int id, vector<folder> &fs)
 {
     folder &directory = fs[getFolder(dirId)];
     // 如果head没有输入，计算新文件的起始地址
@@ -190,7 +210,16 @@ void newFile(const string &name, const int &size, const int &dirId, int head, in
             cout << "[Error] Failed to create file, as the memory is not big enough. " << endl;
         }
     }
+    return head;
 }
+void newFile(const string &name, const string& content, const int& dirId, int head, int id, vector<folder>&fs){
+    int size = content.size();
+    // 创建文件
+    int hd = newFile(name, size, dirId, head, id, fs);
+    // 将字符串保存到内存
+    writeMemory(hd, content);
+}
+
 
 // 对一个文件夹做列表操作
 void listFolder(const folder &f)

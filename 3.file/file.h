@@ -69,8 +69,8 @@ int getFolder(const int &id, const vector<folder> &fs = folders)
         if (fs[i].id == id)
             return i;
     }
-    cout << "[Error] The folder [" << id << "] doesn't exist. " << endl;
-    return -1;
+    cout << "[Error] The folder [" << id << "] doesn't exist. Your operation wold be done on [0]_root folder. " << endl;
+    return 0;
 }
 
 // 初始化文件系统, 根目录 id = 0, 如果尝试删除会提示失败
@@ -86,7 +86,8 @@ void changeDirectory(const int& dirId, const vector<folder> &fs = folders);
 void newFolder(const string &name, const int &dirId = currentFolderId, int& id = globalFolderId, vector<folder> &fs = folders);
 
 // 新建文件
-void newFile(const string &name, const int& size, const int &dirId = currentFolderId, int head = -1,  int id = globalFileId, vector<folder> &fs = folders);
+int newFile(const string &name, const int& size, const int &dirId = currentFolderId, int head = -1,  int id = globalFileId, vector<folder> &fs = folders);
+void newFile(const string &name, const string& content, const int &dirId = currentFolderId, int head = -1,  int id = globalFileId, vector<folder> &fs = folders); 
 
 // 从/data文件夹读入文件索引
 void loadFiles(const string &path, vector<folder> &fs = folders){

@@ -1,4 +1,4 @@
-[DEBUG COMMANDS]
+[***DEBUG COMMANDS***]
 
 /dbg m
 Show current memory.
@@ -6,7 +6,7 @@ Show current memory.
 Show files.
 /dbg g
 Test fragment merging algorithm. 
-[SYSTEM COMMANDS]
+[***SYSTEM COMMANDS***]
 
 /help
 Get help.
@@ -16,25 +16,29 @@ Quit the file system.
 Get files, memory data and folders from /data. 
 /save
 Store data and directories to /data folder. 
-[LIST COMMANDS]
+[***LIST COMMANDS***]
 
 /list
 List current directory.
 /list [+id]
 List a specific directory. (eg. /list 5)
-[DIRECTORY COMMANDS]
+[***DIRECTORY COMMANDS***]
 
 /cd [+id]
 Change directory. (eg. /cd 5)
 /cd 0
 Go to the root directory. 
-[FILE COMMANDS]
+[***FILE COMMANDS***]
 
 /new [+folderName]
 Create a new folder in current directory. 
 /new [+fileName] [+size]
 Create a new file in current directory. 
+/new -s [+fileName] [+content]
+Create a new file in current directory, with its content. 
 /new -d [+folderID] [+folderName]
 Create a new folder in specific directory. 
 /new -d [+folderID] [+fileName] [+size]
 Create a new file in specific directory. 
+/new -ds [+folderID] [+fileName] [+content]
+Create a new file in specific directory, with its content. 

@@ -1,8 +1,8 @@
 #include "file.cpp"
 #include <iomanip>
 
-string dataPath = "./data/memory.txt";  // 内存数据存储路径
-string treePath = "./data/tree.txt";    // 文件树结构存储路径
+string dataPath = "./data/memory.txt"; // 内存数据存储路径
+string treePath = "./data/tree.txt";   // 文件树结构存储路径
 
 // 展示当前路径
 void showCurrentDir(const int &id = currentFolderId, const vector<folder> &fs = folders)
@@ -47,6 +47,31 @@ void help()
     file.close();
     cout << "\n\n\n"
          << endl;
+}
+
+// 将options[index]及之后的元素全部合并到options[index]， 中间用空格分开
+void mergeInput(int index, vector<string> &options)
+{
+    // Check if the index is valid
+    if (index < 0 || index >= options.size())
+    {
+        cerr << "[Error] Invalid index.\n";
+        return;
+    }
+
+    // Concatenate elements starting from the specified index
+    string merged;
+    for (size_t i = index; i < options.size(); ++i)
+    {
+        merged += options[i];
+        if (i != options.size() - 1)
+        {
+            merged += " "; // Add a space between merged elements, except for the last one
+        }
+    }
+
+    // Update options[index] with the merged string
+    options[index] = merged;
 }
 
 // 命令的解析, 如果退出界面则返回true, 否则返回false.
@@ -107,11 +132,13 @@ bool parsing(string &line)
     }
     else if (action == "/list")
     {
-        if(!options.empty()){
+        if (!options.empty())
+        {
             // list 指定ID的目录
             listFolder(stoi(options[0]));
         }
-        else {
+        else
+        {
             // list 当前目录
             listFolder(currentFolderId);
         }
@@ -128,21 +155,35 @@ bool parsing(string &line)
             // new filename size的情况
             newFile(options[0], stoi(options[1]));
             break;
-        case 3:
-            // new -d folderid foldername的情况
-            if(options[0] == "-d") 
-            {
-                newFolder(options[2], stoi(options[1]));
-            }
-            break;
-        case 4:
-            // new -d folderid filename size的情况
-            if(options[0] == "-d") 
-            {
-                newFile(options[2], stoi(options[3]), stoi(options[1]));
-            }
-            break;
         default:
+            if (options[0] == "-d")
+            {
+                switch (options.size())
+                {
+                case 3:
+                    // new -d folderid foldername的情况
+                    newFolder(options[2], stoi(options[1]));
+                    break;
+                case 4:
+                    // new -d folderid filename size的情况
+                    newFile(options[2], stoi(options[3]), stoi(options[1]));
+                default:
+                    break;
+                }
+            }
+            else if (options[0] == "-s")
+            {
+                // new -s [+fileName] [+content]
+                mergeInput(2, options);
+                newFile(options[1], options[2]);
+            }
+            else if (options[0] == "-ds")
+            {
+                // new -ds [+folderID] [+fileName] [+content]
+                mergeInput(3, options);
+                newFile(options[2], options[3], stoi(options[1]));
+            }
+
             break;
         }
     }
@@ -153,7 +194,8 @@ bool parsing(string &line)
             int newDirectory = stoi(options[0]);
             changeDirectory(newDirectory);
         }
-        else{
+        else
+        {
             cout << "[Error] Try: /cd 0" << endl;
         }
     }
@@ -167,9 +209,9 @@ bool parsing(string &line)
             if (action[0] != '/')
             {
                 // 提示用户输入左斜线
-                cout << "A correct instruction usually starts with a '/' in this system. ";
+                cout << "A correct instruction usually starts from a '/' in this system. ";
             }
-            cout << "Try: '/help' is you'd like to get help. " << endl;
+            cout << "Try: '/help' if you'd like to get help. " << endl;
         }
     }
     return false; // 不退出

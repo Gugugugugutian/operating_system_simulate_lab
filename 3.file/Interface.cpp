@@ -97,23 +97,31 @@ bool parsing(string &line)
     }
     else if (action == "/dbg")
     {
-        // 调试指令
-        string t = options[0];
-        switch (t[0])
+        // 指令为空时报错
+        if (options.empty())
         {
-        case 'm':
-            // 内存的调试
-            showMemory();
-            break;
-        case 'f':
-            // 文件的调试
-            show();
-        case 'g':
-            // 碎片合并算法的调试
-            mergeMemory();
-            break;
-        default:
-            break;
+            cout << "[Parser] Please input option(s) and try again. " << endl;
+        }
+        else
+        {
+            // 调试指令
+            string t = options[0];
+            switch (t[0])
+            {
+            case 'm':
+                // 内存的调试
+                showMemory();
+                break;
+            case 'f':
+                // 文件的调试
+                show();
+            case 'g':
+                // 碎片合并算法的调试
+                mergeMemory();
+                break;
+            default:
+                break;
+            }
         }
     }
     else if (action == "/quit")
@@ -145,46 +153,54 @@ bool parsing(string &line)
     }
     else if (action == "/new")
     {
-        switch (options.size())
+        // 指令为空时报错
+        if (options.empty())
         {
-        case 1:
-            // new foldername 的情况
-            newFolder(options[0]);
-            break;
-        case 2:
-            // new filename size的情况
-            newFile(options[0], stoi(options[1]));
-            break;
-        default:
-            if (options[0] == "-d")
+            cout << "[Parser] Please input option(s) and try again. " << endl;
+        }
+        else
+        {
+            switch (options.size())
             {
-                switch (options.size())
+            case 1:
+                // new foldername 的情况
+                newFolder(options[0]);
+                break;
+            case 2:
+                // new filename size的情况
+                newFile(options[0], stoi(options[1]));
+                break;
+            default:
+                if (options[0] == "-d")
                 {
-                case 3:
-                    // new -d folderid foldername的情况
-                    newFolder(options[2], stoi(options[1]));
-                    break;
-                case 4:
-                    // new -d folderid filename size的情况
-                    newFile(options[2], stoi(options[3]), stoi(options[1]));
-                default:
-                    break;
+                    switch (options.size())
+                    {
+                    case 3:
+                        // new -d folderid foldername的情况
+                        newFolder(options[2], stoi(options[1]));
+                        break;
+                    case 4:
+                        // new -d folderid filename size的情况
+                        newFile(options[2], stoi(options[3]), stoi(options[1]));
+                    default:
+                        break;
+                    }
                 }
-            }
-            else if (options[0] == "-s")
-            {
-                // new -s [+fileName] [+content]
-                mergeInput(2, options);
-                newFile(options[1], options[2]);
-            }
-            else if (options[0] == "-ds")
-            {
-                // new -ds [+folderID] [+fileName] [+content]
-                mergeInput(3, options);
-                newFile(options[2], options[3], stoi(options[1]));
-            }
+                else if (options[0] == "-s")
+                {
+                    // new -s [+fileName] [+content]
+                    mergeInput(2, options);
+                    newFile(options[1], options[2]);
+                }
+                else if (options[0] == "-ds")
+                {
+                    // new -ds [+folderID] [+fileName] [+content]
+                    mergeInput(3, options);
+                    newFile(options[2], options[3], stoi(options[1]));
+                }
 
-            break;
+                break;
+            }
         }
     }
     else if (action == "/cd")
@@ -199,6 +215,95 @@ bool parsing(string &line)
             cout << "[Error] Try: /cd 0" << endl;
         }
     }
+    else if (action == "/mov")
+    {
+        // 指令为空时报错
+        if (options.empty())
+        {
+            cout << "[Parser] Please input option(s) and try again. " << endl;
+        }
+        else
+        {
+            moveFile(stoi(options[0]), stoi(options[1]));
+        }
+    }
+    else if (action == "/dlt")
+    {
+        // 指令为空时报错
+        if (options.empty())
+        {
+            cout << "[Parser] Please input option(s) and try again. " << endl;
+        }
+        else
+        {
+            deleteFile(stoi(options[0]));
+        }
+    }
+    else if (action == "/dltf")
+    {
+        // 指令为空时报错
+        if (options.empty())
+        {
+            cout << "[Parser] Please input option(s) and try again. " << endl;
+        }
+        else
+        {
+            deleteFolder(stoi(options[0]));
+        }
+    }
+    else if (action == "/rd")
+    {
+        // 指令为空时报错
+        if (options.empty())
+        {
+            cout << "[Parser] Please input option(s) and try again. " << endl;
+        }
+        else
+        {
+            cout << readFile(stoi(options[0])) << endl;
+        }
+    }
+    else if (action == "/udt")
+    {
+        // 指令为空时报错
+        if (options.empty())
+        {
+            cout << "[Parser] Please input option(s) and try again. " << endl;
+        }
+        else
+        {
+            int fileID = stoi(options[0]);
+            mergeInput(1, options);
+            updateFile(fileID, options[1]);
+        }
+    }
+    else if (action == "/rename")
+    {
+        // 指令为空时报错
+        if (options.size()<2)
+        {
+            cout << "[Parser] Please input option(s) and try again. " << endl;
+        }
+        else
+        {
+            int fileID = stoi(options[0]);
+            renameFile(fileID, options[1]);
+        }
+    }
+    else if (action == "/renamef")
+    {
+        // 指令为空时报错
+        if (options.size()<2)
+        {
+            cout << "[Parser] Please input option(s) and try again. " << endl;
+        }
+        else
+        {
+            int fid = stoi(options[0]);
+            renameFolder(fid, options[1]);
+        }
+    }
+    
     else
     {
         // 输入不为空

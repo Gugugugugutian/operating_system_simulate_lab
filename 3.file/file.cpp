@@ -153,16 +153,20 @@ void newFolder(const string &name, const int &dirId, int &id, vector<folder> &fs
 }
 
 // 写入内存
-void writeMemory(int head, const string& content, memory& mem = Disk) {
+void writeMemory(int head, const string &content, memory &mem = Disk)
+{
     // 检查头部地址是否有效
-    if (head < 0 || head >= MEMORY_SIZE) {
+    if (head < 0 || head >= MEMORY_SIZE)
+    {
         cerr << "[Error] Invalid head position.\n";
         return;
     }
     // 写内存
-    for (size_t i = 0; i < content.size(); ++i) {
+    for (size_t i = 0; i < content.size(); ++i)
+    {
         // 检查没有发生内存越界
-        if (head + i >= MEMORY_SIZE) {
+        if (head + i >= MEMORY_SIZE)
+        {
             cerr << "[Warning] Writing beyond memory bounds. Truncating content.\n";
             break;
         }
@@ -212,7 +216,7 @@ int newFile(const string &name, const int &size, const int &dirId, int head, int
     }
     return head;
 }
-void newFile(const string &name, const string& content, const int& dirId, int head, int id, vector<folder>&fs){
+void newFile(const string &name, const string &content, const int &dirId, int head, int id, vector<folder> &fs){
     int size = content.size();
     // 创建文件
     int hd = newFile(name, size, dirId, head, id, fs);
@@ -220,6 +224,181 @@ void newFile(const string &name, const string& content, const int& dirId, int he
     writeMemory(hd, content);
 }
 
+// 移动文件
+void moveFile(int fileId, int dstFolder, vector<folder> &fs = folders)
+{
+    // Find the destination folder
+    folder *destinationFolder = nullptr;
+    for (folder &f : fs)
+    {
+        if (f.id == dstFolder)
+        {
+            destinationFolder = &f;
+            break;
+        }
+    }
+    if (!destinationFolder)
+    {
+        cout << "[Error] Destination folder with ID [" << dstFolder << "] not found." << endl;
+        return;
+    }
+
+    // Find the current folder and the file
+    folder *currentFolder = nullptr;
+    file *movingFile = nullptr;
+    for (folder &f : fs)
+    {
+        auto it = find_if(f.files.begin(), f.files.end(), [fileId](const file &fi)
+                          { return fi.id == fileId; });
+        if (it != f.files.end())
+        {
+            currentFolder = &f;
+            movingFile = &(*it);
+            break;
+        }
+    }
+    if (!currentFolder || !movingFile)
+    {
+        cout << "[Error] File with ID [" << fileId << "] not found." << endl;
+        return;
+    }
+
+    // Move the file to the destination folder
+    destinationFolder->files.push_back(*movingFile);
+    currentFolder->files.erase(remove_if(currentFolder->files.begin(), currentFolder->files.end(),
+                                         [fileId](const file &fi)
+                                         { return fi.id == fileId; }),
+                               currentFolder->files.end());
+
+    cout << "[SYSTEM] File with ID [" << fileId << "] moved successfully to folder [" << dstFolder << "]. " << endl;
+}
+
+// 删除文件
+bool deleteFile(int fileId, vector<folder> &fs = folders){
+    bool found = false; // Flag to indicate if the file is found and deleted
+
+    // Iterate through all folders
+    for (folder &f : fs)
+    {
+        auto it = find_if(f.files.begin(), f.files.end(), [fileId](const file &fi)
+                          { return fi.id == fileId; });
+        if (it != f.files.end())
+        {
+            // Remove the file from the folder's file list
+            f.files.erase(it);
+            found = true; // Set found flag to true
+            cout << "[SYSTEM] File with ID [" << fileId << "] deleted successfully." << endl;
+        }
+    }
+
+    // If the file is not found in any folder
+    if (!found)
+    {
+        cout << "[Error] File with ID [" << fileId << "] not found." << endl;
+        return false; // Return false to indicate failure
+    }
+
+    return true; // Return true to indicate success
+}
+
+// 删除文件夹
+bool deleteFolder(int folderId, vector<folder>& fs = folders) {
+    if(folderId == 0){
+        cout << "Deleting [0] folder (root) is not allowed." << endl;
+        return false;
+    }
+    // Find the folder to delete
+    auto it = find_if(fs.begin(), fs.end(), [folderId](const folder& f) { return f.id == folderId; });
+    if (it == fs.end()) {
+        cout << "[Error] Folder with ID " << folderId << " not found." << endl;
+        return false; // Return false if the folder is not found
+    }
+
+    // Delete all files in the folder
+    for (const auto& file : it->files) {
+        cout << "[SYSTEM] Deleting file " << file.fileName << " (ID: " << file.id << ") from folder " << folderId << endl;
+    }
+
+    // Erase the folder from the file system vector
+    fs.erase(it);
+    cout << "[SYSTEM] Folder with ID " << folderId << " deleted successfully." << endl;
+    return true; // Return true to indicate success
+}
+
+// 读取文件
+string readFile(int id, const memory& mem = Disk, const vector<folder>&fs = folders) {
+    // Find the file
+    for (const folder& f : fs) {
+        for (const file& fi : f.files) {
+            if (fi.id == id) {
+                // Read the content of the file from memory
+                string content;
+                for (int i = fi.head; i < fi.head + fi.size; ++i) {
+                    content += mem.data[i];
+                }
+                return content;
+            }
+        }
+    }
+    // If the file is not found
+    cout << "[Error] File with ID " << id << " not found." << endl;
+    return ""; // Return an empty string to indicate failure
+}
+
+// 更新文件
+void updateFile(int id, string newContent, memory& mem = Disk, vector<folder>&fs = folders) {
+    // 用ID找到旧文件，保存文件名和文件夹ID
+    int folderID;
+    string fileName;
+    for (const folder& f : fs) {
+        for (const file& fi : f.files) {
+            if (fi.id == id) {
+                folderID = f.id;
+                fileName = fi.fileName;
+                break;
+            }
+        }
+        if (!fileName.empty()) {
+            break;
+        }
+    }
+    // 删除旧文件
+    deleteFile(id);
+    // 创建新文件
+    newFile(fileName, newContent, folderID, memoryBack, id);
+}
+
+// 重命名文件
+void renameFile(int id, string newName, vector<folder>& fs = folders){
+    // Find the file and update its name
+    for (folder& f : fs) {
+        for (file& fi : f.files) {
+            if (fi.id == id) {
+                fi.fileName = newName;
+                cout << "[SYSTEM] File with ID " << id << " renamed to '" << newName << "'." << endl;
+                return;
+            }
+        }
+    }
+
+    // If the file is not found
+    cout << "[Error] File with ID " << id << " not found." << endl;
+}
+
+// 重命名文件夹
+void renameFolder(int id, string newName, vector<folder>& fs = folders){
+    // Find the folder and update its name
+    for (folder& f : fs) {
+        if (f.id == id) {
+            f.folderName = newName;
+            cout << "[SYSTEM] Folder with ID " << id << " renamed to '" << newName << "'." << endl;
+            return;
+        }
+    }
+
+    // If the folder is not found
+    cout << "[Error] Folder with ID " << id << " not found." << endl;
+}
 
 // 对一个文件夹做列表操作
 void listFolder(const folder &f)

@@ -20,7 +20,7 @@ int memoryBack = 0;
 struct file
 {
     // 编号
-    const int id = -1;
+    int id = -1;
     // 文件名
     std::string fileName = "undefined";
     // 文件大小
@@ -41,7 +41,7 @@ struct file
 struct folder
 {
     // 编号
-    const int id = -1;
+    int id = -1;
     // 文件夹名
     string folderName = "undefined";
 

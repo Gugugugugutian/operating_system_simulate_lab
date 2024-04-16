@@ -165,23 +165,23 @@ int getEmptyPage(const memory &mem = PhysicalMemory) {
 }
 
 // 使用FIFO算法实现调度
-void FIFO(const access& a, vector<process>& p = pr_s);
-void FIFO(const vector<access>& accs = access_s){
-    cout << "FIFO: " << endl;
-    cout << "Time\tPid\tAddress\tVPN\tResult\tPPN\tData" << endl;
-    for(const access& a: accs){
-        if(!checkAccess(a)) {
-            // 对应进程不存在，跳过这条指令
-            continue;
-        } else {
-            // 执行这条指令
-            FIFO(a);
-            // show(PhysicalMemory);
-            // showPgTables(pr_s[a.pid].process_pt);
-        }
-        tick++;
-    }
-}
+// void FIFO(const access& a, vector<process>& p = pr_s);
+// void FIFO(const vector<access>& accs = access_s){
+//     cout << "FIFO: " << endl;
+//     cout << "Time\tPid\tAddress\tVPN\tResult\tPPN\tData" << endl;
+//     for(const access& a: accs){
+//         if(!checkAccess(a)) {
+//             // 对应进程不存在，跳过这条指令
+//             continue;
+//         } else {
+//             // 执行这条指令
+//             FIFO(a);
+//             // show(PhysicalMemory);
+//             // showPgTables(pr_s[a.pid].process_pt);
+//         }
+//         tick++;
+//     }
+// }
 
 // 使用不同算法实现调度（通用函数）
 void schedule(const access& a, const int &al = alg, vector<process>& p = pr_s);

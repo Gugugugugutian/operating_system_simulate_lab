@@ -70,49 +70,6 @@ void readAccess(vector<access> &acc, const string& file_path) {
     file.close();
 }
 
-// 使用FIFO算法实现调度
-void FIFO(const access& a, vector<process>& p){
-    pt& pageTable = p[a.pid].process_pt;    // 对应进程的页表
-    int vpn = a.logicAddress / PAGE_SIZE; // 访问虚拟页号
-    int bias = a.logicAddress % PAGE_SIZE;    // 访问的页内偏移量
-    int ppn = -1;    // 物理页号
-
-    // 检查页表是否命中
-    if (vpn < pageTable.size && pageTable.items[vpn].valid){
-        // 页表命中
-        ppn = pageTable.items[vpn].ppn;
-        cout << tick << "\t" << a.pid << "\t" << a.logicAddress << "\t" << vpn << "\tHIT\t" << ppn << "\t" << PhysicalMemory.data[ppn].data[bias] << endl;
-    } 
-    else if(vpn < pageTable.size) {
-        // 页表未命中, vpn有效
-        cout << tick << "\t" << a.pid << "\t" << a.logicAddress << "\t" << vpn << "\tMISS\t" << endl;
-        
-        // 寻找一个新的空闲块
-        ppn = getEmptyPage();
-        if(ppn == -1) {
-            // 不存在空闲页，调用磁盘调度算法
-            ppn = 0;
-            // 找到最早加入的物理块
-            for(int i=0; i<P_MEM_SIZE; i++){
-                page pg = PhysicalMemory.data[i];
-                ppn = (pg.in_time < PhysicalMemory.data[ppn].in_time) ? i : ppn;
-            }
-        }
-
-        // 从外存向ppn调页
-        int old_addr = (PhysicalMemory.data[ppn].valid)? PhysicalMemory.data[ppn].disk_pn : -1;
-        // show(PhysicalMemory);
-        int new_addr = pageTable.items[vpn].disk_pn; 
-        replacePage(PhysicalMemory, Disk, ppn, old_addr, new_addr);
-        updatePageTable(p[a.pid], vpn, ppn);
-        cout << "[PageTable] pid: " << a.pid << ", Updated: Vpn-" << vpn << ", Ppn-" << ppn << ". " << endl;
-    } else {
-        // 页表未命中， vpn无效
-        cout << tick << "\t" << a.pid << "\t" << a.logicAddress << "\t" << vpn << "\tMISS\t" << endl;
-        cout << "[PageFault] Failed to handle this page missing, as the virtual page number is too large." << endl;
-    }
-}
-
 // 使用不同算法实现调度（通用函数）
 void schedule(const access& a, const int &al, vector<process>& p) {
     pt& pageTable = p[a.pid].process_pt;    // 对应进程的页表

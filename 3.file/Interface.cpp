@@ -1,6 +1,8 @@
 #include "file.cpp"
 #include <iomanip>
 
+// using named std;
+
 string dataPath = "./data/memory.txt"; // 内存数据存储路径
 string treePath = "./data/tree.txt";   // 文件树结构存储路径
 

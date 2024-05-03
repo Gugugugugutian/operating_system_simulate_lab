@@ -1,9 +1,8 @@
-in 0 file 0 systemconfig 529 17
+in 0 file 0 systemconfig 1 17
 in 0 folder 1 user
-in 1 file 1 userconfig 546 14
-in 1 file 3 userinfo_gutian 560 34
+in 1 file 3 userinfo_gutian 18 34
+in 1 file 11 new 81 4
 in 1 folder 2 user_gutian
-in 2 file 2 gutian 0 512
-in 2 file 4 mergetest 528 1
-in 2 file 9 gutianInfo 594 21
-in 2 file 10 gpa 615 8
+in 2 file 4 mergetest 0 1
+in 2 file 9 gutianInfo 52 21
+in 2 file 10 gpa 73 8
